@@ -1,0 +1,10 @@
+# IntelliJ
+.idea/
+*.iml
+
+# Gradle (lokale Caches & Build-Outputs)
+.gradle/
+build/
+
+# macOS
+.DS_Store

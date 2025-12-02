@@ -10,8 +10,7 @@ import jakarta.persistence.Id;
 public class Auszahlung {
 
     @Id
-    private final UUID id;
-
+    private UUID id;
     private final BigDecimal betrag;
     private final LocalDate datum;
     private final Zahlungsart zahlungsart;
@@ -27,12 +26,12 @@ public class Auszahlung {
     }
 
     public Auszahlung() {
-        this.id = null; // Null setzen, da UUID final ist
-        this.betrag = null; // Null setzen für BigDecimal
-        this.datum = null; // Null für LocalDate
-        this.zahlungsart = null; // Null für Enum
-        this.verwendungszweck = null; // Null für Enum
-        this.notiz = null; // Null für String
+        this.id = null;
+        this.betrag = null;
+        this.datum = null;
+        this.zahlungsart = null;
+        this.verwendungszweck = null;
+        this.notiz = null;
     }
 
     public Auszahlung(UUID id,

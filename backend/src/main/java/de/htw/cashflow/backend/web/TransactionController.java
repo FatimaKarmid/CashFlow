@@ -1,15 +1,19 @@
-package de.htw.cashflow.backend.web;
-
+@RestController
 public class TransactionController {
-    private String title;
-    private double amount;
 
-    public TransactionController(String title, double amount) {
-        this.title = title;
-        this.amount = amount;
+    private final TransactionRepository transactionRepository;
+
+    public TransactionController(TransactionRepository transactionRepository) {
+        this.transactionRepository = transactionRepository;
     }
 
+    @GetMapping("/auszahlungen")
+    public List<Transaction> getTransactions() {
+        return transactionRepository.findAll();
+    }
 
-    public String getTitle() { return title; }
-    public double getAmount() { return amount; }
+    @PostMapping("/auszahlungen")
+    public Transaction createTransaction(@RequestBody Transaction transaction) {
+        return transactionRepository.save(transaction);
+    }
 }

@@ -5,17 +5,19 @@ import java.time.LocalDate;
 import java.util.UUID;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Column;
 
 @Entity
 public class Auszahlung {
 
-    @Id
+    @Id // primärschlüssel
     private UUID id;
-    private final BigDecimal betrag;
-    private final LocalDate datum;
-    private final Zahlungsart zahlungsart;
-    private final Verwendungszweck verwendungszweck;
-    private final String notiz;
+    private BigDecimal betrag;
+    @Column(name = "datum")
+    private LocalDate datum;
+    private Zahlungsart zahlungsart;
+    private Verwendungszweck verwendungszweck;
+    private String notiz;
 
     public enum Zahlungsart {
         BAR, KARTE, UEBERWEISUNG, LASTSCHRIFT, SONSTIGES

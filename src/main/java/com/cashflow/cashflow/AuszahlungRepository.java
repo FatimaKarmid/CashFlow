@@ -7,4 +7,6 @@ import java.util.UUID;
 
 public interface AuszahlungRepository  extends JpaRepository<Auszahlung, UUID> {
     List<Auszahlung> findByDatum(LocalDate datum);
+    List<Auszahlung> findByZahlungsart(String zahlungsart);
+
 }

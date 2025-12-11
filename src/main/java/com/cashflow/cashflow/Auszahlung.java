@@ -5,18 +5,32 @@ import java.time.LocalDate;
 import java.util.UUID;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
 
 @Entity
 public class Auszahlung {
 
     @Id // primärschlüssel
+    @GeneratedValue
     private UUID id;
+
+    @Column(nullable = false)
     private BigDecimal betrag;
-    @Column(name = "datum")
+
+    @Column(nullable = false)
     private LocalDate datum;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Zahlungsart zahlungsart;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Verwendungszweck verwendungszweck;
+
     private String notiz;
 
     public enum Zahlungsart {
@@ -28,22 +42,13 @@ public class Auszahlung {
     }
 
     public Auszahlung() {
-        this.id = null;
-        this.betrag = null;
-        this.datum = null;
-        this.zahlungsart = null;
-        this.verwendungszweck = null;
-        this.notiz = null;
     }
 
-    public Auszahlung(UUID id,
-                      BigDecimal betrag,
+    public Auszahlung(BigDecimal betrag,
                       LocalDate datum,
                       Zahlungsart zahlungsart,
                       Verwendungszweck verwendungszweck,
                       String notiz) {
-
-        this.id = id;
         this.betrag = betrag;
         this.datum = datum;
         this.zahlungsart = zahlungsart;
@@ -76,5 +81,25 @@ public class Auszahlung {
 
     public boolean istAmTag(LocalDate tag) {
         return datum.equals(tag);
+    }
+
+    public void setBetrag(BigDecimal betrag) {
+        this.betrag = betrag;
+    }
+
+    public void setDatum(LocalDate datum) {
+        this.datum = datum;
+    }
+
+    public void setZahlungsart(Zahlungsart zahlungsart) {
+        this.zahlungsart = zahlungsart;
+    }
+
+    public void setVerwendungszweck(Verwendungszweck verwendungszweck) {
+        this.verwendungszweck = verwendungszweck;
+    }
+
+    public void setNotiz(String notiz) {
+        this.notiz = notiz;
     }
 }

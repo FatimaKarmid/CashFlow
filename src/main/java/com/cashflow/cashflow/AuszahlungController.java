@@ -1,35 +1,41 @@
 package com.cashflow.cashflow;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
+import java.time.LocalDate;
 
 @RestController
 public class AuszahlungController {
     private final AuszahlungRepository auszahlungRepository;
 
+    @Autowired
     public AuszahlungController(AuszahlungRepository auszahlungRepository) {
         this.auszahlungRepository = auszahlungRepository;
     }
 
     // GET Route: Alle Transaktionen abrufen
     @GetMapping("/auszahlungen")
-    public ResponseEntity<List<Auszahlung>> getAllTransactions() {
-        List<Auszahlung> auszahlungen = auszahlungRepository.findAll();
-        if (auszahlungen.isEmpty()) {
-            return ResponseEntity.notFound().build(); // Gibt 404 zurück, wenn keine Auszahlungen vorhanden sind
-        }
-        return ResponseEntity.ok(auszahlungen); // Gibt 200 OK zurück mit den Auszahlungen
+    public List<Auszahlung> getAll() {
+        return new ArrayList<>((Collection<? extends Auszahlung>) auszahlungRepository.findAll());
     }
 
+    // GET Route: Auszahlungen für ein bestimmtes Datum
+    @GetMapping("/auszahlungen/{datum}")
+    public List<Auszahlung> getByDatum(@PathVariable LocalDate datum) {
+        return auszahlungRepository.findByDatum(datum);
+    }
 
     // POST Route: Neue Transaktion hinzufügen
     @PostMapping("/auszahlungen")
-    public Auszahlung addTransaction(@RequestBody Auszahlung transaction) {
-        return auszahlungRepository.save(transaction);  // Speichert die neue Transaktion in der DB
+    public ResponseEntity<Auszahlung> addTransaction(@RequestBody Auszahlung transaction) {
+        Auszahlung saved = auszahlungRepository.save(transaction);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved); // 201 Created
     }
 }
 

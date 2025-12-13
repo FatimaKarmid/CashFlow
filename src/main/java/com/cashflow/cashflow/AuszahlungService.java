@@ -2,31 +2,40 @@ package com.cashflow.cashflow;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.time.LocalDate;
-import java.util.ArrayList;
+
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class AuszahlungService {
 
     @Autowired
-    private final AuszahlungRepository repo;
+    private AuszahlungRepository auszahlungRepository;
 
-    public AuszahlungService(AuszahlungRepository repo) {
-        this.repo = repo;
+    // Get all transactions
+    public List<Auszahlung> getAllTransactions() {
+        return auszahlungRepository.findAll();
     }
 
-    public Auszahlung speichern(Auszahlung a) {
-        return repo.save(a);
+    // Add new transaction
+    public Auszahlung addTransaction(Auszahlung newTransaction) {
+        return auszahlungRepository.save(newTransaction);
     }
 
-    public List<Auszahlung> alle() {
-        List<Auszahlung> auszahlungenList = new ArrayList<>();
-        repo.findAll().forEach(auszahlungenList::add);
-        return auszahlungenList;
+    // Edit transaction
+    public Auszahlung updateTransaction(UUID id, Auszahlung updatedTransaction) {
+        Optional<Auszahlung> existingTransaction = auszahlungRepository.findById(id);
+        if (existingTransaction.isPresent()) {
+            updatedTransaction.setId(id);
+            return auszahlungRepository.save(updatedTransaction);
+        } else {
+            throw new RuntimeException("Transaktion nicht gefunden");
+        }
     }
 
-    public List<Auszahlung> amTag(LocalDate tag) {
-        return repo.findByDatum(tag);
+    // Delete transaction
+    public void deleteTransaction(UUID id) {
+        auszahlungRepository.deleteById(id);
     }
 }

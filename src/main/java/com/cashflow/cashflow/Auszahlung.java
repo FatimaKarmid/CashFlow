@@ -13,7 +13,7 @@ import jakarta.persistence.EnumType;
 @Entity
 public class Auszahlung {
 
-    @Id // primärschlüssel
+    @Id // Primärschlüssel
     @GeneratedValue
     private UUID id;
 
@@ -32,6 +32,11 @@ public class Auszahlung {
     private Verwendungszweck verwendungszweck;
 
     private String notiz;
+
+    // Setter für UUID id
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
     public enum Zahlungsart {
         BAR, KARTE, UEBERWEISUNG, LASTSCHRIFT, SONSTIGES
@@ -56,8 +61,9 @@ public class Auszahlung {
         this.notiz = notiz;
     }
 
-
-    public UUID getId() { return id; }
+    public UUID getId() {
+        return id;
+    }
 
     public BigDecimal getBetrag() {
         return betrag;

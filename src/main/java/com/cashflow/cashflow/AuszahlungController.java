@@ -1,41 +1,40 @@
 package com.cashflow.cashflow;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import org.springframework.http.ResponseEntity;
-import java.time.LocalDate;
+import java.util.UUID;
 
 @RestController
+@RequestMapping("/auszahlungen")
 public class AuszahlungController {
-    private final AuszahlungRepository auszahlungRepository;
 
     @Autowired
-    public AuszahlungController(AuszahlungRepository auszahlungRepository) {
-        this.auszahlungRepository = auszahlungRepository;
+    private AuszahlungService auszahlungService;
+
+    // Get all transactions
+    @GetMapping
+    public List<Auszahlung> getAllTransactions() {
+        return auszahlungService.getAllTransactions();
     }
 
-    // GET Route: Alle Transaktionen abrufen
-    @GetMapping("/auszahlungen")
-    public List<Auszahlung> getAll() {
-        return new ArrayList<>((Collection<? extends Auszahlung>) auszahlungRepository.findAll());
+    // Add new transaction
+    @PostMapping
+    public Auszahlung addTransaction(@RequestBody Auszahlung newTransaction) {
+        return auszahlungService.addTransaction(newTransaction);
     }
 
-    // GET Route: Auszahlungen für ein bestimmtes Datum
-    @GetMapping("/auszahlungen/{datum}")
-    public List<Auszahlung> getByDatum(@PathVariable LocalDate datum) {
-        return auszahlungRepository.findByDatum(datum);
+    // Edit transaction
+    @PutMapping("/{id}")
+    public Auszahlung updateTransaction(@PathVariable UUID id, @RequestBody Auszahlung updatedTransaction) {
+        return auszahlungService.updateTransaction(id, updatedTransaction);
     }
 
-    // POST Route: Neue Transaktion hinzufügen
-    @PostMapping("/auszahlungen")
-    public ResponseEntity<Auszahlung> addTransaction(@RequestBody Auszahlung transaction) {
-        Auszahlung saved = auszahlungRepository.save(transaction);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved); // 201 Created
+    // Delete transaction
+    @DeleteMapping("/{id}")
+    public String deleteTransaction(@PathVariable UUID id) {
+        auszahlungService.deleteTransaction(id);
+        return "Transaktion gelöscht!";
     }
 }
-

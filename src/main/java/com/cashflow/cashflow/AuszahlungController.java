@@ -8,6 +8,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/auszahlungen")
+@CrossOrigin(origins = "http://localhost:8080")
 public class AuszahlungController {
 
     @Autowired

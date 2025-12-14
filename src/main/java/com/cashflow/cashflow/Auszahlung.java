@@ -3,6 +3,9 @@ package com.cashflow.cashflow;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
@@ -43,7 +46,17 @@ public class Auszahlung {
     }
 
     public enum Verwendungszweck {
-        LEBENSMITTEL, KLEIDUNG, FAHRTKOSTEN, MIETE, FREIZEIT, GESUNDHEIT, SONSTIGES
+        LEBENSMITTEL, KLEIDUNG, FAHRTKOSTEN, MIETE, FREIZEIT, GESUNDHEIT, SONSTIGES;
+
+        @JsonValue
+        public String getValue() {
+            return name(); // Rückgabe des Enum-Namens in Großbuchstaben
+        }
+
+        @JsonCreator
+        public static Verwendungszweck fromString(String value) {
+            return Verwendungszweck.valueOf(value.toUpperCase());
+        }
     }
 
     public Auszahlung() {

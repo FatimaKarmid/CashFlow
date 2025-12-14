@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+
 @RestController
 @RequestMapping("/auszahlungen")
 public class AuszahlungController {
@@ -35,7 +36,6 @@ public class AuszahlungController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
-
 
     // Edit transaction
     @PutMapping("/{id}")

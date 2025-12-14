@@ -30,7 +30,7 @@ public class Auszahlung {
     @Column(nullable = false)
     private Zahlungsart zahlungsart;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     @Column(nullable = false)
     private Verwendungszweck verwendungszweck;
 

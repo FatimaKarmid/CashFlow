@@ -46,27 +46,39 @@ public class Auszahlung {
     }
 
     public enum Verwendungszweck {
-        LEBENSMITTEL, KLEIDUNG, FAHRTKOSTEN, MIETE, FREIZEIT, GESUNDHEIT, SONSTIGES;
+        LEBENSMITTEL(1), KLEIDUNG(2), FAHRTKOSTEN(3), MIETE(4), FREIZEIT(5), GESUNDHEIT(6), SONSTIGES(7);
+
+        private final int value;
+
+        Verwendungszweck(int value) {
+            this.value = value;
+        }
 
         @JsonValue
-        public String getValue() {
-            return name(); // Rückgabe des Enum-Namens in Großbuchstaben
+        public int getValue() {
+            return value;  // Rückgabe des Integer-Werts
         }
 
         @JsonCreator
         public static Verwendungszweck fromString(String value) {
             return Verwendungszweck.valueOf(value.toUpperCase());
         }
+
+        // Umwandlung von Integer-Werten in Enum
+        public static Verwendungszweck fromInt(int i) {
+            for (Verwendungszweck v : Verwendungszweck.values()) {
+                if (v.getValue() == i) {
+                    return v;
+                }
+            }
+            throw new IllegalArgumentException("Unbekannter Wert: " + i);
+        }
     }
 
     public Auszahlung() {
     }
 
-    public Auszahlung(BigDecimal betrag,
-                      LocalDate datum,
-                      Zahlungsart zahlungsart,
-                      Verwendungszweck verwendungszweck,
-                      String notiz) {
+    public Auszahlung(BigDecimal betrag, LocalDate datum, Zahlungsart zahlungsart, Verwendungszweck verwendungszweck, String notiz) {
         this.betrag = betrag;
         this.datum = datum;
         this.zahlungsart = zahlungsart;

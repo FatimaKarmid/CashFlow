@@ -11,7 +11,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         // Erlaube Anfragen von deiner Frontend-Domain
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:8080", "https://your-frontend-domain.com") // Hier die URL deiner Frontend-App eintragen
+                .allowedOrigins("http://localhost:8080", "https://cashflow-frontend-vspq.onrender.com")
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowCredentials(true);
     }

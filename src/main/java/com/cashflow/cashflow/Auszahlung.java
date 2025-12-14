@@ -26,7 +26,7 @@ public class Auszahlung {
     @Column(nullable = false)
     private LocalDate datum;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     @Column(nullable = false)
     private Zahlungsart zahlungsart;
 

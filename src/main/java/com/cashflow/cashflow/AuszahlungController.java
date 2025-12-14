@@ -28,11 +28,14 @@ public class AuszahlungController {
     @PostMapping
     public ResponseEntity<Auszahlung> addTransaction(@RequestBody Auszahlung newTransaction) {
         try {
+            System.out.println("Empfangene Transaktion: " + newTransaction);
             return ResponseEntity.status(HttpStatus.CREATED).body(auszahlungService.addTransaction(newTransaction));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
+
 
     // Edit transaction
     @PutMapping("/{id}")

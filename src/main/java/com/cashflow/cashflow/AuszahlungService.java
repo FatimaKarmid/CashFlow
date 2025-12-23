@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class AuszahlungService {
@@ -16,6 +19,18 @@ public class AuszahlungService {
     // Get all transactions
     public List<Auszahlung> getAllTransactions() {
         return auszahlungRepository.findAll();
+    }
+
+    public BigDecimal getSummeProMonat(int monat, int jahr) {
+        return auszahlungRepository.summeProMonat(monat, jahr);
+    }
+
+    public List<Auszahlung> getByKategorie(Auszahlung.Verwendungszweck verwendungszweck) {
+        return auszahlungRepository.findByVerwendungszweck(verwendungszweck);
+    }
+
+    public BigDecimal getSummeAmTag(LocalDate datum) {
+        return auszahlungRepository.summeAmTag(datum);
     }
 
     // Add new transaction

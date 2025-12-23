@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/auszahlungen")
@@ -55,6 +57,28 @@ public class AuszahlungController {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Transaktion gelöscht");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Transaktion nicht gefunden");
+        }
+    }
+
+    @GetMapping("/summe-monat")
+    public ResponseEntity<BigDecimal> summeProMonat(
+            @RequestParam int monat,
+            @RequestParam int jahr) {
+        return ResponseEntity.ok(auszahlungService.getSummeProMonat(monat, jahr));
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<Auszahlung>> filterByKategorie(
+            @RequestParam Auszahlung.Verwendungszweck kategorie) {
+        return ResponseEntity.ok(auszahlungService.getByKategorie(kategorie));
+    }
+
+    @GetMapping("/summe")
+    public ResponseEntity<BigDecimal> getSummeAmTag(@RequestParam LocalDate datum) {
+        try {
+            return ResponseEntity.ok(auszahlungService.getSummeAmTag(datum));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 }

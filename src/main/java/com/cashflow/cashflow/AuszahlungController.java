@@ -1,11 +1,13 @@
 package com.cashflow.cashflow;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -81,4 +83,22 @@ public class AuszahlungController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @GetMapping("/chart")
+    public Map<String, BigDecimal> chartDaten(
+            @RequestParam int monat,
+            @RequestParam int jahr) {
+        return auszahlungService.summeNachKategorie(monat, jahr);
+    }
+
+    @GetMapping(params = "datum")
+    public List<Auszahlung> getByDatum(@RequestParam LocalDate datum) {
+        return auszahlungService.getByDatum(datum);
+    }
+
+    @PostMapping
+    public ResponseEntity<?> add(@Valid @RequestBody Auszahlung a) {
+        return ResponseEntity.ok(auszahlungService.addTransaction(a));
+    }
+
 }

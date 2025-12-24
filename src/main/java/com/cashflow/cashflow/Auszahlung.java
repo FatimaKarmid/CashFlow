@@ -1,15 +1,12 @@
 package com.cashflow.cashflow;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.UUID;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity
 public class Auszahlung {
@@ -27,83 +24,35 @@ public class Auszahlung {
     @Column(nullable = false)
     private LocalDate datum;
 
-    @Enumerated(EnumType.ORDINAL)
+    @NotNull
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Zahlungsart zahlungsart;
 
-    @Enumerated(EnumType.ORDINAL)
+    @NotNull
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Verwendungszweck verwendungszweck;
 
     private String notiz;
 
-    // =========================
-    // ENUMS
-    // =========================
+    // ===== ENUMS =====
 
     public enum Zahlungsart {
         BAR, KARTE, UEBERWEISUNG, LASTSCHRIFT, SONSTIGES
     }
 
     public enum Verwendungszweck {
-        LEBENSMITTEL(1),
-        KLEIDUNG(2),
-        FAHRTKOSTEN(3),
-        MIETE(4),
-        FREIZEIT(5),
-        GESUNDHEIT(6),
-        SONSTIGES(7);
-
-        private final int value;
-
-        Verwendungszweck(int value) {
-            this.value = value;
-        }
-
-        @JsonValue
-        public int getValue() {
-            return value;
-        }
-
-        @JsonCreator
-        public static Verwendungszweck fromString(String value) {
-            return Verwendungszweck.valueOf(value.toUpperCase());
-        }
-
-        public static Verwendungszweck fromInt(int i) {
-            for (Verwendungszweck v : values()) {
-                if (v.value == i) {
-                    return v;
-                }
-            }
-            throw new IllegalArgumentException("Unbekannter Wert: " + i);
-        }
+        LEBENSMITTEL,
+        KLEIDUNG,
+        FAHRTKOSTEN,
+        MIETE,
+        FREIZEIT,
+        GESUNDHEIT,
+        SONSTIGES
     }
 
-    // =========================
-    // KONSTRUKTOREN
-    // =========================
-
-    public Auszahlung() {
-    }
-
-    public Auszahlung(
-            BigDecimal betrag,
-            LocalDate datum,
-            Zahlungsart zahlungsart,
-            Verwendungszweck verwendungszweck,
-            String notiz
-    ) {
-        this.betrag = betrag;
-        this.datum = datum;
-        this.zahlungsart = zahlungsart;
-        this.verwendungszweck = verwendungszweck;
-        this.notiz = notiz;
-    }
-
-    // =========================
-    // GETTER / SETTER
-    // =========================
+    // ===== GETTER / SETTER =====
 
     public UUID getId() {
         return id;
@@ -151,13 +100,5 @@ public class Auszahlung {
 
     public void setNotiz(String notiz) {
         this.notiz = notiz;
-    }
-
-    // =========================
-    // HELFER
-    // =========================
-
-    public boolean istAmTag(LocalDate tag) {
-        return datum.equals(tag);
     }
 }

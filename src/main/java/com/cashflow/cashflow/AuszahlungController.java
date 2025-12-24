@@ -1,16 +1,16 @@
 package com.cashflow.cashflow;
 
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/auszahlungen")
@@ -19,86 +19,67 @@ public class AuszahlungController {
     @Autowired
     private AuszahlungService auszahlungService;
 
-    // Get all transactions
+    // ALLE
     @GetMapping
-    public ResponseEntity<List<Auszahlung>> getAllTransactions() {
-        try {
-            return ResponseEntity.ok(auszahlungService.getAllTransactions());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public List<Auszahlung> getAll() {
+        return auszahlungService.getAllTransactions();
     }
 
-    // Add new transaction
+    // POST (NUR EINMAL!)
     @PostMapping
-    public ResponseEntity<Auszahlung> addTransaction(@RequestBody Auszahlung newTransaction) {
-        try {
-            System.out.println("Empfangene Transaktion: " + newTransaction);
-            return ResponseEntity.status(HttpStatus.CREATED).body(auszahlungService.addTransaction(newTransaction));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
+    public ResponseEntity<Auszahlung> add(@Valid @RequestBody Auszahlung auszahlung) {
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(auszahlungService.addTransaction(auszahlung));
     }
 
-    // Edit transaction
+    // UPDATE
     @PutMapping("/{id}")
-    public ResponseEntity<Auszahlung> updateTransaction(@PathVariable UUID id, @RequestBody Auszahlung updatedTransaction) {
-        try {
-            return ResponseEntity.ok(auszahlungService.updateTransaction(id, updatedTransaction));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+    public Auszahlung update(
+            @PathVariable UUID id,
+            @RequestBody Auszahlung updated) {
+        return auszahlungService.updateTransaction(id, updated);
     }
 
-    // Delete transaction
+    // DELETE
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteTransaction(@PathVariable UUID id) {
-        try {
-            auszahlungService.deleteTransaction(id);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Transaktion gelöscht");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Transaktion nicht gefunden");
-        }
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        auszahlungService.deleteTransaction(id);
+        return ResponseEntity.noContent().build();
     }
 
+    // FILTER KATEGORIE
+    @GetMapping("/filter")
+    public List<Auszahlung> filterByKategorie(
+            @RequestParam Auszahlung.Verwendungszweck kategorie) {
+        return auszahlungService.getByKategorie(kategorie);
+    }
+
+    // FILTER DATUM
+    @GetMapping(params = "datum")
+    public List<Auszahlung> filterByDatum(@RequestParam LocalDate datum) {
+        return auszahlungService.getByDatum(datum);
+    }
+
+    // SUMME TAG
+    @GetMapping("/summe")
+    public BigDecimal summeTag(@RequestParam LocalDate datum) {
+        return auszahlungService.getSummeAmTag(datum);
+    }
+
+    // SUMME MONAT
     @GetMapping("/summe-monat")
-    public ResponseEntity<BigDecimal> summeProMonat(
+    public BigDecimal summeMonat(
             @RequestParam int monat,
             @RequestParam int jahr) {
-        return ResponseEntity.ok(auszahlungService.getSummeProMonat(monat, jahr));
+        return auszahlungService.getSummeProMonat(monat, jahr);
     }
 
-    @GetMapping("/filter")
-    public ResponseEntity<List<Auszahlung>> filterByKategorie(
-            @RequestParam Auszahlung.Verwendungszweck kategorie) {
-        return ResponseEntity.ok(auszahlungService.getByKategorie(kategorie));
-    }
-
-    @GetMapping("/summe")
-    public ResponseEntity<BigDecimal> getSummeAmTag(@RequestParam LocalDate datum) {
-        try {
-            return ResponseEntity.ok(auszahlungService.getSummeAmTag(datum));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
+    // CHART
     @GetMapping("/chart")
-    public Map<String, BigDecimal> chartDaten(
+    public Map<String, BigDecimal> chart(
             @RequestParam int monat,
             @RequestParam int jahr) {
         return auszahlungService.summeNachKategorie(monat, jahr);
     }
-
-    @GetMapping(params = "datum")
-    public List<Auszahlung> getByDatum(@RequestParam LocalDate datum) {
-        return auszahlungService.getByDatum(datum);
-    }
-
-    @PostMapping
-    public ResponseEntity<?> add(@Valid @RequestBody Auszahlung a) {
-        return ResponseEntity.ok(auszahlungService.addTransaction(a));
-    }
-
 }

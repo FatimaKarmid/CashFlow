@@ -6,31 +6,53 @@ import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.UUID;
 import java.util.List;
+import java.util.UUID;
 
 public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
 
+
+    // Alle Auszahlungen an einem bestimmten Datum
     List<Auszahlung> findByDatum(LocalDate datum);
 
-    @Query("SELECT COALESCE(SUM(a.betrag), 0) FROM Auszahlung a WHERE a.datum = :datum")
+    // Alle Auszahlungen nach Kategorie
+    List<Auszahlung> findByVerwendungszweck(
+            Auszahlung.Verwendungszweck verwendungszweck
+    );
+
+
+    // Summe an einem Tag
+    @Query("""
+        SELECT COALESCE(SUM(a.betrag), 0)
+        FROM Auszahlung a
+        WHERE a.datum = :datum
+    """)
     BigDecimal summeAmTag(@Param("datum") LocalDate datum);
 
-    List<Auszahlung> findByVerwendungszweck(Auszahlung.Verwendungszweck verwendungszweck);
-
+    // Summe pro Monat (Hibernate-kompatibel)
     @Query("""
-SELECT COALESCE(SUM(a.betrag),0)
-FROM Auszahlung a
-WHERE MONTH(a.datum) = :monat AND YEAR(a.datum) = :jahr
-""")
-    BigDecimal summeProMonat(@Param("monat") int monat, @Param("jahr") int jahr);
+        SELECT COALESCE(SUM(a.betrag), 0)
+        FROM Auszahlung a
+        WHERE a.datum >= :start
+          AND a.datum < :ende
+    """)
+    BigDecimal summeProMonat(
+            @Param("start") LocalDate start,
+            @Param("ende") LocalDate ende
+    );
 
+
+
+    // Summe nach Kategorie (für Diagramme)
     @Query("""
-SELECT a.verwendungszweck, SUM(a.betrag)
-FROM Auszahlung a
-WHERE MONTH(a.datum) = :monat AND YEAR(a.datum) = :jahr
-GROUP BY a.verwendungszweck
-""")
-    List<Object[]> summeNachKategorie(@Param("monat") int monat, @Param("jahr") int jahr);
-
+        SELECT a.verwendungszweck, COALESCE(SUM(a.betrag), 0)
+        FROM Auszahlung a
+        WHERE a.datum >= :start
+          AND a.datum < :ende
+        GROUP BY a.verwendungszweck
+    """)
+    List<Object[]> summeNachKategorie(
+            @Param("start") LocalDate start,
+            @Param("ende") LocalDate ende
+    );
 }

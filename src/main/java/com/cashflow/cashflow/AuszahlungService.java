@@ -13,29 +13,10 @@ public class AuszahlungService {
     @Autowired
     private AuszahlungRepository auszahlungRepository;
 
+
     // Alle Transaktionen
     public List<Auszahlung> getAllTransactions() {
         return auszahlungRepository.findAll();
-    }
-
-    // Summe pro Monat
-    public BigDecimal getSummeProMonat(int monat, int jahr) {
-        return auszahlungRepository.summeProMonat(monat, jahr);
-    }
-
-    // Filter nach Kategorie
-    public List<Auszahlung> getByKategorie(Auszahlung.Verwendungszweck verwendungszweck) {
-        return auszahlungRepository.findByVerwendungszweck(verwendungszweck);
-    }
-
-    // Summe pro Tag
-    public BigDecimal getSummeAmTag(LocalDate datum) {
-        return auszahlungRepository.summeAmTag(datum);
-    }
-
-    // Filter nach Datum
-    public List<Auszahlung> getByDatum(LocalDate datum) {
-        return auszahlungRepository.findByDatum(datum);
     }
 
     // Neue Transaktion
@@ -45,13 +26,12 @@ public class AuszahlungService {
 
     // Update
     public Auszahlung updateTransaction(UUID id, Auszahlung updatedTransaction) {
-        Optional<Auszahlung> existingTransaction = auszahlungRepository.findById(id);
-        if (existingTransaction.isPresent()) {
-            updatedTransaction.setId(id);
-            return auszahlungRepository.save(updatedTransaction);
-        } else {
-            throw new RuntimeException("Transaktion nicht gefunden");
-        }
+        return auszahlungRepository.findById(id)
+                .map(existing -> {
+                    updatedTransaction.setId(id);
+                    return auszahlungRepository.save(updatedTransaction);
+                })
+                .orElseThrow(() -> new RuntimeException("Transaktion nicht gefunden"));
     }
 
     // Löschen
@@ -59,10 +39,38 @@ public class AuszahlungService {
         auszahlungRepository.deleteById(id);
     }
 
-    // Chart-Daten
+
+    // Nach Kategorie
+    public List<Auszahlung> getByKategorie(Auszahlung.Verwendungszweck verwendungszweck) {
+        return auszahlungRepository.findByVerwendungszweck(verwendungszweck);
+    }
+
+    // Nach Datum
+    public List<Auszahlung> getByDatum(LocalDate datum) {
+        return auszahlungRepository.findByDatum(datum);
+    }
+
+
+    // Summe an einem Tag
+    public BigDecimal getSummeAmTag(LocalDate datum) {
+        return auszahlungRepository.summeAmTag(datum);
+    }
+
+    // Summe pro Monat
+    public BigDecimal getSummeProMonat(int monat, int jahr) {
+        LocalDate start = LocalDate.of(jahr, monat, 1);
+        LocalDate ende = start.plusMonths(1);
+        return auszahlungRepository.summeProMonat(start, ende);
+    }
+
+
+    // Summe nach Kategorie (für Diagramme)
     public Map<String, BigDecimal> summeNachKategorie(int monat, int jahr) {
-        Map<String, BigDecimal> result = new HashMap<>();
-        for (Object[] row : auszahlungRepository.summeNachKategorie(monat, jahr)) {
+        LocalDate start = LocalDate.of(jahr, monat, 1);
+        LocalDate ende = start.plusMonths(1);
+
+        Map<String, BigDecimal> result = new LinkedHashMap<>();
+        for (Object[] row : auszahlungRepository.summeNachKategorie(start, ende)) {
             result.put(row[0].toString(), (BigDecimal) row[1]);
         }
         return result;

@@ -26,12 +26,12 @@ public class AuszahlungController {
     }
 
     // POST (NUR EINMAL!)
-    @PostMapping
-    public ResponseEntity<Auszahlung> add(@Valid @RequestBody Auszahlung auszahlung) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(auszahlungService.addTransaction(auszahlung));
-    }
+    //@PostMapping
+    //public ResponseEntity<Auszahlung> add(@Valid @RequestBody Auszahlung auszahlung) {
+     //   return ResponseEntity
+           //     .status(HttpStatus.CREATED)
+         //       .body(auszahlungService.addTransaction(auszahlung));
+    //}
 
     // UPDATE
     @PutMapping("/{id}")

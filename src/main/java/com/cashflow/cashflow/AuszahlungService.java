@@ -1,6 +1,5 @@
 package com.cashflow.cashflow;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -10,8 +9,12 @@ import java.util.*;
 @Service
 public class AuszahlungService {
 
-    @Autowired
-    private AuszahlungRepository auszahlungRepository;
+    private final AuszahlungRepository auszahlungRepository;
+
+    //  Best Practice: Constructor Injection
+    public AuszahlungService(AuszahlungRepository auszahlungRepository) {
+        this.auszahlungRepository = auszahlungRepository;
+    }
 
 
     // Alle Transaktionen
@@ -31,14 +34,15 @@ public class AuszahlungService {
                     updatedTransaction.setId(id);
                     return auszahlungRepository.save(updatedTransaction);
                 })
-                .orElseThrow(() -> new RuntimeException("Transaktion nicht gefunden"));
+                .orElseThrow(() ->
+                        new NoSuchElementException("Transaktion nicht gefunden: " + id)
+                );
     }
 
     // Löschen
     public void deleteTransaction(UUID id) {
         auszahlungRepository.deleteById(id);
     }
-
 
     // Nach Kategorie
     public List<Auszahlung> getByKategorie(Auszahlung.Verwendungszweck verwendungszweck) {
@@ -49,7 +53,6 @@ public class AuszahlungService {
     public List<Auszahlung> getByDatum(LocalDate datum) {
         return auszahlungRepository.findByDatum(datum);
     }
-
 
     // Summe an einem Tag
     public BigDecimal getSummeAmTag(LocalDate datum) {
@@ -64,15 +67,19 @@ public class AuszahlungService {
     }
 
 
-    // Summe nach Kategorie (für Diagramme)
+    // Summe nach Kategorie für Diagramme
     public Map<String, BigDecimal> summeNachKategorie(int monat, int jahr) {
         LocalDate start = LocalDate.of(jahr, monat, 1);
         LocalDate ende = start.plusMonths(1);
 
         Map<String, BigDecimal> result = new LinkedHashMap<>();
+
         for (Object[] row : auszahlungRepository.summeNachKategorie(start, ende)) {
-            result.put(row[0].toString(), (BigDecimal) row[1]);
+            String kategorie = row[0].toString();      // Enum → String
+            BigDecimal summe = (BigDecimal) row[1];
+            result.put(kategorie, summe);
         }
+
         return result;
     }
 }

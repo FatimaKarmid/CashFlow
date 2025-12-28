@@ -1,11 +1,10 @@
 package com.cashflow.cashflow;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -22,53 +21,74 @@ import java.util.UUID;
 )
 public class AuszahlungController {
 
-    @Autowired
-    private AuszahlungService auszahlungService;
+    private final AuszahlungService auszahlungService;
 
+    //  Constructor Injection (Best Practice)
+    public AuszahlungController(AuszahlungService auszahlungService) {
+        this.auszahlungService = auszahlungService;
+    }
 
+    // GET
     // Alle Auszahlungen
     @GetMapping
-    public List<Auszahlung> getAll() {
-        return auszahlungService.getAllTransactions();
+    public ResponseEntity<List<Auszahlung>> getAll() {
+        return ResponseEntity.ok(auszahlungService.getAllTransactions());
     }
 
     // Filter nach Kategorie
     @GetMapping("/filter")
-    public List<Auszahlung> filterByKategorie(
+    public ResponseEntity<List<Auszahlung>> filterByKategorie(
             @RequestParam Auszahlung.Verwendungszweck kategorie) {
-        return auszahlungService.getByKategorie(kategorie);
+
+        return ResponseEntity.ok(
+                auszahlungService.getByKategorie(kategorie)
+        );
     }
 
     // Filter nach Datum
     @GetMapping(params = "datum")
-    public List<Auszahlung> filterByDatum(
+    public ResponseEntity<List<Auszahlung>> filterByDatum(
             @RequestParam LocalDate datum) {
-        return auszahlungService.getByDatum(datum);
+
+        return ResponseEntity.ok(
+                auszahlungService.getByDatum(datum)
+        );
     }
 
     // Summe pro Tag
     @GetMapping("/summe")
-    public BigDecimal summeTag(@RequestParam LocalDate datum) {
-        return auszahlungService.getSummeAmTag(datum);
+    public ResponseEntity<BigDecimal> summeTag(
+            @RequestParam LocalDate datum) {
+
+        return ResponseEntity.ok(
+                auszahlungService.getSummeAmTag(datum)
+        );
     }
 
     // Summe pro Monat
     @GetMapping("/summe-monat")
-    public BigDecimal summeMonat(
+    public ResponseEntity<BigDecimal> summeMonat(
             @RequestParam int monat,
             @RequestParam int jahr) {
-        return auszahlungService.getSummeProMonat(monat, jahr);
+
+        return ResponseEntity.ok(
+                auszahlungService.getSummeProMonat(monat, jahr)
+        );
     }
 
     // Chart: Summe nach Kategorie
     @GetMapping("/chart")
-    public Map<String, BigDecimal> chart(
+    public ResponseEntity<Map<String, BigDecimal>> chart(
             @RequestParam int monat,
             @RequestParam int jahr) {
-        return auszahlungService.summeNachKategorie(monat, jahr);
+
+        return ResponseEntity.ok(
+                auszahlungService.summeNachKategorie(monat, jahr)
+        );
     }
 
-    // NEUE AUSZAHLUNG
+    // POST
+    // Neue Auszahlung
     @PostMapping
     public ResponseEntity<Auszahlung> add(
             @Valid @RequestBody Auszahlung auszahlung) {
@@ -79,16 +99,17 @@ public class AuszahlungController {
                 .body(saved);
     }
 
-
+    // PUT
     @PutMapping("/{id}")
-    public Auszahlung update(
+    public ResponseEntity<Auszahlung> update(
             @PathVariable UUID id,
-            @RequestBody Auszahlung updated) {
+            @Valid @RequestBody Auszahlung updated) {
 
-        return auszahlungService.updateTransaction(id, updated);
+        Auszahlung saved = auszahlungService.updateTransaction(id, updated);
+        return ResponseEntity.ok(saved);
     }
 
-
+    // DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         auszahlungService.deleteTransaction(id);

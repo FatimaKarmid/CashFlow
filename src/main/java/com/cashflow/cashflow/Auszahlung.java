@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
+@Table(name = "auszahlung")
 public class Auszahlung {
 
     @Id
@@ -34,12 +35,15 @@ public class Auszahlung {
     @Column(nullable = false)
     private Verwendungszweck verwendungszweck;
 
+    @Column(length = 255)
     private String notiz;
 
-    // ===== ENUMS =====
-
     public enum Zahlungsart {
-        BAR, KARTE, UEBERWEISUNG, LASTSCHRIFT, SONSTIGES
+        BAR,
+        KARTE,
+        UEBERWEISUNG,
+        LASTSCHRIFT,
+        SONSTIGES
     }
 
     public enum Verwendungszweck {
@@ -52,7 +56,24 @@ public class Auszahlung {
         SONSTIGES
     }
 
-    // ===== GETTER / SETTER =====
+    // Pflicht für JPA
+    public Auszahlung() {
+    }
+
+    // Komfort-Konstruktor
+    public Auszahlung(
+            BigDecimal betrag,
+            LocalDate datum,
+            Zahlungsart zahlungsart,
+            Verwendungszweck verwendungszweck,
+            String notiz
+    ) {
+        this.betrag = betrag;
+        this.datum = datum;
+        this.zahlungsart = zahlungsart;
+        this.verwendungszweck = verwendungszweck;
+        this.notiz = notiz;
+    }
 
     public UUID getId() {
         return id;
@@ -100,5 +121,17 @@ public class Auszahlung {
 
     public void setNotiz(String notiz) {
         this.notiz = notiz;
+    }
+
+    @Override
+    public String toString() {
+        return "Auszahlung{" +
+                "id=" + id +
+                ", betrag=" + betrag +
+                ", datum=" + datum +
+                ", zahlungsart=" + zahlungsart +
+                ", verwendungszweck=" + verwendungszweck +
+                ", notiz='" + notiz + '\'' +
+                '}';
     }
 }

@@ -11,15 +11,13 @@ import java.util.UUID;
 
 public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
 
-
     // Alle Auszahlungen an einem bestimmten Datum
     List<Auszahlung> findByDatum(LocalDate datum);
 
-    // Alle Auszahlungen nach Kategorie
+    // Alle Auszahlungen einer Kategorie
     List<Auszahlung> findByVerwendungszweck(
             Auszahlung.Verwendungszweck verwendungszweck
     );
-
 
     // Summe an einem Tag
     @Query("""
@@ -29,7 +27,7 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
     """)
     BigDecimal summeAmTag(@Param("datum") LocalDate datum);
 
-    // Summe pro Monat (Hibernate-kompatibel)
+    // Summe für einen Monat über Datumsbereich – DB-neutral!
     @Query("""
         SELECT COALESCE(SUM(a.betrag), 0)
         FROM Auszahlung a
@@ -42,8 +40,7 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
     );
 
 
-
-    // Summe nach Kategorie (für Diagramme)
+    // Summe nach Kategorie z.B. für Diagramme
     @Query("""
         SELECT a.verwendungszweck, COALESCE(SUM(a.betrag), 0)
         FROM Auszahlung a

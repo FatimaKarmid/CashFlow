@@ -1,5 +1,6 @@
 package com.cashflow.cashflow;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -11,15 +12,16 @@ public class AuszahlungService {
 
     private final AuszahlungRepository auszahlungRepository;
 
-    //  Best Practice: Constructor Injection
+    // Best Practice: Constructor Injection
     public AuszahlungService(AuszahlungRepository auszahlungRepository) {
         this.auszahlungRepository = auszahlungRepository;
     }
 
-
-    // Alle Transaktionen
+    // Alle Transaktionen – SORTIERT (neu → alt)
     public List<Auszahlung> getAllTransactions() {
-        return auszahlungRepository.findAll();
+        return auszahlungRepository.findAll(
+                Sort.by(Sort.Direction.DESC, "datum")
+        );
     }
 
     // Neue Transaktion
@@ -44,14 +46,21 @@ public class AuszahlungService {
         auszahlungRepository.deleteById(id);
     }
 
-    // Nach Kategorie
+
+    // Nach Kategorie – SORTIERT (neu → alt)
     public List<Auszahlung> getByKategorie(Auszahlung.Verwendungszweck verwendungszweck) {
-        return auszahlungRepository.findByVerwendungszweck(verwendungszweck);
+        return auszahlungRepository.findByVerwendungszweck(
+                verwendungszweck,
+                Sort.by(Sort.Direction.DESC, "datum")
+        );
     }
 
-    // Nach Datum
+    // Nach Datum – SORTIERT nach Betrag (optional sinnvoll)
     public List<Auszahlung> getByDatum(LocalDate datum) {
-        return auszahlungRepository.findByDatum(datum);
+        return auszahlungRepository.findByDatum(
+                datum,
+                Sort.by(Sort.Direction.DESC, "betrag")
+        );
     }
 
     // Summe an einem Tag
@@ -66,7 +75,6 @@ public class AuszahlungService {
         return auszahlungRepository.summeProMonat(start, ende);
     }
 
-
     // Summe nach Kategorie für Diagramme
     public Map<String, BigDecimal> summeNachKategorie(int monat, int jahr) {
         LocalDate start = LocalDate.of(jahr, monat, 1);
@@ -75,7 +83,7 @@ public class AuszahlungService {
         Map<String, BigDecimal> result = new LinkedHashMap<>();
 
         for (Object[] row : auszahlungRepository.summeNachKategorie(start, ende)) {
-            String kategorie = row[0].toString();      // Enum → String
+            String kategorie = row[0].toString(); // Enum → String
             BigDecimal summe = (BigDecimal) row[1];
             result.put(kategorie, summe);
         }

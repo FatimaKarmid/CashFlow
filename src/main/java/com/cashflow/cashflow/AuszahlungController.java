@@ -39,11 +39,20 @@ public class AuszahlungController {
     @GetMapping("/filter")
     public ResponseEntity<List<Auszahlung>> filter(
             @RequestParam(required = false) Auszahlung.Verwendungszweck kategorie,
-            @RequestParam(required = false) LocalDate datum) {
+            @RequestParam(required = false) LocalDate datum,
+            @RequestParam(required = false) Auszahlung.Zahlungsart zahlungsart) {
 
-        // Beide Filter anwendbar
-        if (kategorie != null && datum != null) {
+        // Filter nach Kategorie und Zahlungsart
+        if (kategorie != null && zahlungsart != null) {
+            return ResponseEntity.ok(auszahlungService.getByZahlungsartAndKategorie(zahlungsart, kategorie));
+        }
+        // Filter nach Kategorie und Datum
+        else if (kategorie != null && datum != null) {
             return ResponseEntity.ok(auszahlungService.getByKategorieAndDatum(kategorie, datum));
+        }
+        // Filter nach Datum und Zahlungsart
+        else if (datum != null && zahlungsart != null) {
+            return ResponseEntity.ok(auszahlungService.getByZahlungsartAndDatum(zahlungsart, datum));
         }
         // Nur nach Kategorie filtern
         else if (kategorie != null) {
@@ -52,6 +61,10 @@ public class AuszahlungController {
         // Nur nach Datum filtern
         else if (datum != null) {
             return ResponseEntity.ok(auszahlungService.getByDatum(datum));
+        }
+        // Nur nach Zahlungsart filtern
+        else if (zahlungsart != null) {
+            return ResponseEntity.ok(auszahlungService.getByZahlungsart(zahlungsart));
         }
         // Alle Auszahlungen, wenn keine Filter angewendet werden
         else {
@@ -106,4 +119,6 @@ public class AuszahlungController {
         auszahlungService.deleteTransaction(id);
         return ResponseEntity.noContent().build();
     }
+
+
 }

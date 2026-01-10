@@ -73,4 +73,19 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
             Auszahlung.Verwendungszweck verwendungszweck,
             Sort sort
     );
+
+    // Filter nach Zahlungsart und Datum
+    List<Auszahlung> findByZahlungsartAndDatum(
+            Auszahlung.Zahlungsart zahlungsart,
+            LocalDate datum,
+            Sort sort
+    );
+
+    // Filter nach Zahlungsart, Kategorie und Datum (neu hinzugefügt)
+    List<Auszahlung> findByZahlungsartAndVerwendungszweckAndDatum(
+            Auszahlung.Zahlungsart zahlungsart,
+            Auszahlung.Verwendungszweck verwendungszweck,
+            LocalDate datum,
+            Sort sort
+    );
 }

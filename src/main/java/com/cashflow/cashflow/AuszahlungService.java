@@ -17,6 +17,14 @@ public class AuszahlungService {
         this.auszahlungRepository = auszahlungRepository;
     }
 
+    // Filter nach Zahlungsart und Datum
+    public List<Auszahlung> getByZahlungsartAndDatum(Auszahlung.Zahlungsart zahlungsart, LocalDate datum) {
+        return auszahlungRepository.findByZahlungsartAndDatum(
+                zahlungsart, datum, Sort.by(Sort.Direction.DESC, "datum")
+        );
+    }
+
+
     // Alle Transaktionen – SORTIERT (neu → alt)
     public List<Auszahlung> getAllTransactions() {
         return auszahlungRepository.findAll(
@@ -107,6 +115,14 @@ public class AuszahlungService {
     public List<Auszahlung> getByZahlungsartAndKategorie(Auszahlung.Zahlungsart zahlungsart, Auszahlung.Verwendungszweck verwendungszweck) {
         return auszahlungRepository.findByZahlungsartAndVerwendungszweck(
                 zahlungsart, verwendungszweck,
+                Sort.by(Sort.Direction.DESC, "datum")
+        );
+    }
+
+    // Filter nach Zahlungsart, Kategorie und Datum
+    public List<Auszahlung> getByZahlungsartAndKategorieAndDatum(Auszahlung.Zahlungsart zahlungsart, Auszahlung.Verwendungszweck verwendungszweck, LocalDate datum) {
+        return auszahlungRepository.findByZahlungsartAndVerwendungszweckAndDatum(
+                zahlungsart, verwendungszweck, datum,
                 Sort.by(Sort.Direction.DESC, "datum")
         );
     }

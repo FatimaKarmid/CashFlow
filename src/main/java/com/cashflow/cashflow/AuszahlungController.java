@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
 @RestController
 @RequestMapping("/auszahlungen")
 @CrossOrigin(
@@ -23,7 +22,7 @@ public class AuszahlungController {
 
     private final AuszahlungService auszahlungService;
 
-    //  Constructor Injection (Best Practice)
+    // Constructor Injection (Best Practice)
     public AuszahlungController(AuszahlungService auszahlungService) {
         this.auszahlungService = auszahlungService;
     }
@@ -35,34 +34,35 @@ public class AuszahlungController {
         return ResponseEntity.ok(auszahlungService.getAllTransactions());
     }
 
-    // Filter nach Kategorie
+    // Filter nach Kategorie und/oder Datum
     @GetMapping("/filter")
-    public ResponseEntity<List<Auszahlung>> filterByKategorie(
-            @RequestParam Auszahlung.Verwendungszweck kategorie) {
+    public ResponseEntity<List<Auszahlung>> filter(
+            @RequestParam(required = false) Auszahlung.Verwendungszweck kategorie,
+            @RequestParam(required = false) LocalDate datum) {
 
-        return ResponseEntity.ok(
-                auszahlungService.getByKategorie(kategorie)
-        );
-    }
-
-    // Filter nach Datum
-    @GetMapping(params = "datum")
-    public ResponseEntity<List<Auszahlung>> filterByDatum(
-            @RequestParam LocalDate datum) {
-
-        return ResponseEntity.ok(
-                auszahlungService.getByDatum(datum)
-        );
+        // Beide Filter anwendbar
+        if (kategorie != null && datum != null) {
+            return ResponseEntity.ok(auszahlungService.getByKategorieAndDatum(kategorie, datum));
+        }
+        // Nur nach Kategorie filtern
+        else if (kategorie != null) {
+            return ResponseEntity.ok(auszahlungService.getByKategorie(kategorie));
+        }
+        // Nur nach Datum filtern
+        else if (datum != null) {
+            return ResponseEntity.ok(auszahlungService.getByDatum(datum));
+        }
+        // Alle Auszahlungen, wenn keine Filter angewendet werden
+        else {
+            return ResponseEntity.ok(auszahlungService.getAllTransactions());
+        }
     }
 
     // Summe pro Tag
     @GetMapping("/summe")
     public ResponseEntity<BigDecimal> summeTag(
             @RequestParam LocalDate datum) {
-
-        return ResponseEntity.ok(
-                auszahlungService.getSummeAmTag(datum)
-        );
+        return ResponseEntity.ok(auszahlungService.getSummeAmTag(datum));
     }
 
     // Summe pro Monat
@@ -70,10 +70,7 @@ public class AuszahlungController {
     public ResponseEntity<BigDecimal> summeMonat(
             @RequestParam int monat,
             @RequestParam int jahr) {
-
-        return ResponseEntity.ok(
-                auszahlungService.getSummeProMonat(monat, jahr)
-        );
+        return ResponseEntity.ok(auszahlungService.getSummeProMonat(monat, jahr));
     }
 
     // Chart: Summe nach Kategorie
@@ -81,10 +78,7 @@ public class AuszahlungController {
     public ResponseEntity<Map<String, BigDecimal>> chart(
             @RequestParam int monat,
             @RequestParam int jahr) {
-
-        return ResponseEntity.ok(
-                auszahlungService.summeNachKategorie(monat, jahr)
-        );
+        return ResponseEntity.ok(auszahlungService.summeNachKategorie(monat, jahr));
     }
 
     // POST
@@ -92,11 +86,8 @@ public class AuszahlungController {
     @PostMapping
     public ResponseEntity<Auszahlung> add(
             @Valid @RequestBody Auszahlung auszahlung) {
-
         Auszahlung saved = auszahlungService.addTransaction(auszahlung);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(saved);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     // PUT
@@ -104,7 +95,6 @@ public class AuszahlungController {
     public ResponseEntity<Auszahlung> update(
             @PathVariable UUID id,
             @Valid @RequestBody Auszahlung updated) {
-
         Auszahlung saved = auszahlungService.updateTransaction(id, updated);
         return ResponseEntity.ok(saved);
     }

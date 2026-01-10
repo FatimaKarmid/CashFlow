@@ -24,6 +24,13 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
             Sort sort
     );
 
+    // Alle Auszahlungen nach Kategorie und Datum (Sortierung kommt von außen)
+    List<Auszahlung> findByVerwendungszweckAndDatum(
+            Auszahlung.Verwendungszweck verwendungszweck,
+            LocalDate datum,
+            Sort sort
+    );
+
     // Summe an einem Tag
     @Query("""
         SELECT COALESCE(SUM(a.betrag), 0)

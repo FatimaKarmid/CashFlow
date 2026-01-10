@@ -6,13 +6,12 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
-
 @Service
 public class AuszahlungService {
 
     private final AuszahlungRepository auszahlungRepository;
 
-    // Best Practice: Constructor Injection
+    // Constructor Injection
     public AuszahlungService(AuszahlungRepository auszahlungRepository) {
         this.auszahlungRepository = auszahlungRepository;
     }
@@ -46,8 +45,7 @@ public class AuszahlungService {
         auszahlungRepository.deleteById(id);
     }
 
-
-    // Nach Kategorie – SORTIERT (neu → alt)
+    // Nach Kategorie filtern – SORTIERT (neu → alt)
     public List<Auszahlung> getByKategorie(Auszahlung.Verwendungszweck verwendungszweck) {
         return auszahlungRepository.findByVerwendungszweck(
                 verwendungszweck,
@@ -55,11 +53,18 @@ public class AuszahlungService {
         );
     }
 
-    // Nach Datum – SORTIERT nach Betrag (optional sinnvoll)
+    // Nach Datum filtern – SORTIERT nach Betrag (optional sinnvoll)
     public List<Auszahlung> getByDatum(LocalDate datum) {
         return auszahlungRepository.findByDatum(
                 datum,
                 Sort.by(Sort.Direction.DESC, "betrag")
+        );
+    }
+
+    // Filter nach Kategorie und Datum
+    public List<Auszahlung> getByKategorieAndDatum(Auszahlung.Verwendungszweck verwendungszweck, LocalDate datum) {
+        return auszahlungRepository.findByVerwendungszweckAndDatum(
+                verwendungszweck, datum, Sort.by(Sort.Direction.DESC, "datum")
         );
     }
 

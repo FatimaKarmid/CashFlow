@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
+
 @Service
 public class AuszahlungService {
 
@@ -35,9 +36,7 @@ public class AuszahlungService {
                     updatedTransaction.setId(id);
                     return auszahlungRepository.save(updatedTransaction);
                 })
-                .orElseThrow(() ->
-                        new NoSuchElementException("Transaktion nicht gefunden: " + id)
-                );
+                .orElseThrow(() -> new NoSuchElementException("Transaktion nicht gefunden: " + id));
     }
 
     // Löschen
@@ -94,5 +93,21 @@ public class AuszahlungService {
         }
 
         return result;
+    }
+
+    // Filter nach Zahlungsart
+    public List<Auszahlung> getByZahlungsart(Auszahlung.Zahlungsart zahlungsart) {
+        return auszahlungRepository.findByZahlungsart(
+                zahlungsart,
+                Sort.by(Sort.Direction.DESC, "datum")
+        );
+    }
+
+    // Filter nach Zahlungsart und Kategorie
+    public List<Auszahlung> getByZahlungsartAndKategorie(Auszahlung.Zahlungsart zahlungsart, Auszahlung.Verwendungszweck verwendungszweck) {
+        return auszahlungRepository.findByZahlungsartAndVerwendungszweck(
+                zahlungsart, verwendungszweck,
+                Sort.by(Sort.Direction.DESC, "datum")
+        );
     }
 }

@@ -39,7 +39,7 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
     """)
     BigDecimal summeAmTag(@Param("datum") LocalDate datum);
 
-    // Summe für einen Monat über Datumsbereich – DB-neutral
+    // Summe für einen Monat über Datumsbereich
     @Query("""
         SELECT COALESCE(SUM(a.betrag), 0)
         FROM Auszahlung a
@@ -62,5 +62,15 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
     List<Object[]> summeNachKategorie(
             @Param("start") LocalDate start,
             @Param("ende") LocalDate ende
+    );
+
+    // Filter nach Zahlungsart
+    List<Auszahlung> findByZahlungsart(Auszahlung.Zahlungsart zahlungsart, Sort sort);
+
+    // Filter nach Zahlungsart und Kategorie
+    List<Auszahlung> findByZahlungsartAndVerwendungszweck(
+            Auszahlung.Zahlungsart zahlungsart,
+            Auszahlung.Verwendungszweck verwendungszweck,
+            Sort sort
     );
 }

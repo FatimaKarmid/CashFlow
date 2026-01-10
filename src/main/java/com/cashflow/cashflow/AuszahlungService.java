@@ -24,7 +24,6 @@ public class AuszahlungService {
         );
     }
 
-
     // Alle Transaktionen – SORTIERT (neu → alt)
     public List<Auszahlung> getAllTransactions() {
         return auszahlungRepository.findAll(

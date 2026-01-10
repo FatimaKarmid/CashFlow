@@ -35,7 +35,7 @@ public class AuszahlungController {
         return ResponseEntity.ok(auszahlungService.getAllTransactions());
     }
 
-    // Filter nach Kategorie und/oder Datum
+    // Filter nach Kategorie und/oder Datum und/oder Zahlungsart
     @GetMapping("/filter")
     public ResponseEntity<List<Auszahlung>> filter(
             @RequestParam(required = false) Auszahlung.Verwendungszweck kategorie,
@@ -119,6 +119,4 @@ public class AuszahlungController {
         auszahlungService.deleteTransaction(id);
         return ResponseEntity.noContent().build();
     }
-
-
 }

@@ -102,27 +102,4 @@ public class AuszahlungService {
         return result;
     }
 
-    // Filter nach Zahlungsart
-    public List<Auszahlung> getByZahlungsart(Auszahlung.Zahlungsart zahlungsart) {
-        return auszahlungRepository.findByZahlungsart(
-                zahlungsart,
-                Sort.by(Sort.Direction.DESC, "datum")
-        );
-    }
-
-    // Filter nach Zahlungsart und Kategorie
-    public List<Auszahlung> getByZahlungsartAndKategorie(Auszahlung.Zahlungsart zahlungsart, Auszahlung.Verwendungszweck verwendungszweck) {
-        return auszahlungRepository.findByZahlungsartAndVerwendungszweck(
-                zahlungsart, verwendungszweck,
-                Sort.by(Sort.Direction.DESC, "datum")
-        );
-    }
-
-    // Filter nach Zahlungsart, Kategorie und Datum
-    public List<Auszahlung> getByZahlungsartAndKategorieAndDatum(Auszahlung.Zahlungsart zahlungsart, Auszahlung.Verwendungszweck verwendungszweck, LocalDate datum) {
-        return auszahlungRepository.findByZahlungsartAndVerwendungszweckAndDatum(
-                zahlungsart, verwendungszweck, datum,
-                Sort.by(Sort.Direction.DESC, "datum")
-        );
-    }
 }

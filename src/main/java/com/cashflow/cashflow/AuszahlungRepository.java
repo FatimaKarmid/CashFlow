@@ -64,15 +64,6 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
             @Param("ende") LocalDate ende
     );
 
-    // Filter nach Zahlungsart
-    List<Auszahlung> findByZahlungsart(Auszahlung.Zahlungsart zahlungsart, Sort sort);
-
-    // Filter nach Zahlungsart und Kategorie
-    List<Auszahlung> findByZahlungsartAndVerwendungszweck(
-            Auszahlung.Zahlungsart zahlungsart,
-            Auszahlung.Verwendungszweck verwendungszweck,
-            Sort sort
-    );
 
     // Filter nach Zahlungsart und Datum
     List<Auszahlung> findByZahlungsartAndDatum(
@@ -81,11 +72,4 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
             Sort sort
     );
 
-    // Filter nach Zahlungsart, Kategorie und Datum (neu hinzugefügt)
-    List<Auszahlung> findByZahlungsartAndVerwendungszweckAndDatum(
-            Auszahlung.Zahlungsart zahlungsart,
-            Auszahlung.Verwendungszweck verwendungszweck,
-            LocalDate datum,
-            Sort sort
-    );
 }

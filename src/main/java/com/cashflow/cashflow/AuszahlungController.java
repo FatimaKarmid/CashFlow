@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
 @RestController
 @RequestMapping("/auszahlungen")
 @CrossOrigin(
@@ -26,17 +27,16 @@ public class AuszahlungController {
         this.auszahlungService = auszahlungService;
     }
 
-    // Alle Auszahlungen
     @GetMapping
     public ResponseEntity<List<Auszahlung>> getAll() {
         return ResponseEntity.ok(auszahlungService.getAllTransactions());
     }
 
-    // 🔹 EIN Filter-Endpunkt: Kategorie + Datum
     @GetMapping("/filter")
     public ResponseEntity<List<Auszahlung>> filter(
             @RequestParam(required = false) Auszahlung.Verwendungszweck kategorie,
-            @RequestParam(required = false) LocalDate datum
+            @RequestParam(required = false) LocalDate datum,
+            @RequestParam(required = false) String name
     ) {
         if (kategorie != null && datum != null) {
             return ResponseEntity.ok(
@@ -53,12 +53,16 @@ public class AuszahlungController {
                     auszahlungService.getByDatum(datum)
             );
         }
+        if (name != null) {
+            return ResponseEntity.ok(
+                    auszahlungService.getByName(name)
+            );
+        }
         return ResponseEntity.ok(
                 auszahlungService.getAllTransactions()
         );
     }
 
-    // Dashboard
     @GetMapping("/summe")
     public ResponseEntity<BigDecimal> summeTag(@RequestParam LocalDate datum) {
         return ResponseEntity.ok(auszahlungService.getSummeAmTag(datum));
@@ -84,6 +88,14 @@ public class AuszahlungController {
     public ResponseEntity<Auszahlung> add(@Valid @RequestBody Auszahlung auszahlung) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(auszahlungService.addTransaction(auszahlung));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Auszahlung> update(
+            @PathVariable UUID id,
+            @Valid @RequestBody Auszahlung updated
+    ) {
+        return ResponseEntity.ok(auszahlungService.updateTransaction(id, updated));
     }
 
     @DeleteMapping("/{id}")

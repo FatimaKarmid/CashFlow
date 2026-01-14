@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
+
 @Service
 public class AuszahlungService {
 
@@ -23,6 +24,15 @@ public class AuszahlungService {
 
     public Auszahlung addTransaction(Auszahlung a) {
         return auszahlungRepository.save(a);
+    }
+
+    public Auszahlung updateTransaction(UUID id, Auszahlung updated) {
+        return auszahlungRepository.findById(id)
+                .map(existing -> {
+                    updated.setId(id);
+                    return auszahlungRepository.save(updated);
+                })
+                .orElseThrow(() -> new NoSuchElementException("Nicht gefunden"));
     }
 
     public void deleteTransaction(UUID id) {
@@ -49,6 +59,21 @@ public class AuszahlungService {
     ) {
         return auszahlungRepository.findByVerwendungszweckAndDatum(
                 kategorie,
+                datum,
+                Sort.by(Sort.Direction.DESC, "datum")
+        );
+    }
+
+    public List<Auszahlung> getByName(String name) {
+        return auszahlungRepository.findByNameContainingIgnoreCase(
+                name,
+                Sort.by(Sort.Direction.DESC, "datum")
+        );
+    }
+
+    public List<Auszahlung> getByNameAndDatum(String name, LocalDate datum) {
+        return auszahlungRepository.findByNameContainingIgnoreCaseAndDatum(
+                name,
                 datum,
                 Sort.by(Sort.Direction.DESC, "datum")
         );

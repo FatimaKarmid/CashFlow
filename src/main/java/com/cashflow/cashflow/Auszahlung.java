@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
-
 @Entity
 @Table(name = "auszahlung")
 public class Auszahlung {
@@ -38,6 +37,9 @@ public class Auszahlung {
     @Column(length = 255)
     private String notiz;
 
+    @Column(nullable = false)
+    private String name;
+
     public enum Zahlungsart {
         BAR,
         KARTE,
@@ -56,18 +58,18 @@ public class Auszahlung {
         SONSTIGES
     }
 
-    // Pflicht für JPA
     public Auszahlung() {
     }
 
-    // Komfort-Konstruktor
     public Auszahlung(
+            String name,
             BigDecimal betrag,
             LocalDate datum,
             Zahlungsart zahlungsart,
             Verwendungszweck verwendungszweck,
             String notiz
     ) {
+        this.name = name;
         this.betrag = betrag;
         this.datum = datum;
         this.zahlungsart = zahlungsart;
@@ -123,10 +125,19 @@ public class Auszahlung {
         this.notiz = notiz;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public String toString() {
         return "Auszahlung{" +
                 "id=" + id +
+                ", name='" + name + '\'' +
                 ", betrag=" + betrag +
                 ", datum=" + datum +
                 ", zahlungsart=" + zahlungsart +

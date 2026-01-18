@@ -1,6 +1,7 @@
 package com.cashflow.cashflow;
 
 import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,26 +40,15 @@ public class AuszahlungController {
     @GetMapping("/filter")
     public ResponseEntity<List<Auszahlung>> filter(
             @RequestParam(required = false) String name,
-            @RequestParam(required = false) String datum,  // Datum als String empfangen
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate datum,
             @RequestParam(required = false) Auszahlung.Verwendungszweck kategorie
     ) {
-        // Bereinigung des Namens-Parameters
         String safeName = (name == null || name.isBlank()) ? null : name.trim();
 
-        // Datum verarbeiten, falls es nicht null ist
-        LocalDate parsedDatum = null;
-        if (datum != null && !datum.isBlank()) {
-            try {
-                parsedDatum = LocalDate.parse(datum);  // Umwandlung von String zu LocalDate
-            } catch (Exception e) {
-                // Falls das Datum nicht im richtigen Format vorliegt, setzen wir es auf null
-                parsedDatum = null;
-            }
-        }
-
-        // Aufruf der Service-Methode mit dem korrekten Datum
         return ResponseEntity.ok(
-                auszahlungService.filter(safeName, parsedDatum, kategorie)
+                auszahlungService.filter(safeName, datum, kategorie)
         );
     }
 

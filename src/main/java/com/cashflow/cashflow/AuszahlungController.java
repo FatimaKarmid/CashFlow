@@ -35,20 +35,30 @@ public class AuszahlungController {
         );
     }
 
-    // EIN Filter-Endpunkt für ALLE Kombinationen
-    // Name + Kategorie + Datum (beliebig kombinierbar)
+    // =====================================================
+    // ZENTRALER FILTER-ENDPUNKT
+    // Alle Kombinationen von:
+    // - Name
+    // - Kategorie
+    // - Datum
+    // =====================================================
     @GetMapping("/filter")
     public ResponseEntity<List<Auszahlung>> filter(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) LocalDate datum,
             @RequestParam(required = false) Auszahlung.Verwendungszweck kategorie
     ) {
+        // Leere Strings sauber behandeln
+        String safeName = (name == null || name.isBlank()) ? null : name.trim();
+
         return ResponseEntity.ok(
-                auszahlungService.filter(name, datum, kategorie)
+                auszahlungService.filter(safeName, datum, kategorie)
         );
     }
 
+    // =====================================================
     // Summe pro Tag
+    // =====================================================
     @GetMapping("/summe")
     public ResponseEntity<BigDecimal> summeTag(
             @RequestParam LocalDate datum
@@ -58,7 +68,9 @@ public class AuszahlungController {
         );
     }
 
+    // =====================================================
     // Summe pro Monat
+    // =====================================================
     @GetMapping("/summe-monat")
     public ResponseEntity<BigDecimal> summeMonat(
             @RequestParam int monat,
@@ -69,7 +81,9 @@ public class AuszahlungController {
         );
     }
 
+    // =====================================================
     // Chart-Daten (Summe je Kategorie)
+    // =====================================================
     @GetMapping("/chart")
     public ResponseEntity<Map<String, BigDecimal>> chart(
             @RequestParam int monat,
@@ -80,7 +94,9 @@ public class AuszahlungController {
         );
     }
 
-    // Neue Auszahlung
+    // =====================================================
+    // Neue Auszahlung anlegen
+    // =====================================================
     @PostMapping
     public ResponseEntity<Auszahlung> add(
             @Valid @RequestBody Auszahlung auszahlung
@@ -90,7 +106,9 @@ public class AuszahlungController {
                 .body(auszahlungService.addTransaction(auszahlung));
     }
 
-    // Update bestehender Auszahlung
+    // =====================================================
+    // Bestehende Auszahlung aktualisieren
+    // =====================================================
     @PutMapping("/{id}")
     public ResponseEntity<Auszahlung> update(
             @PathVariable UUID id,
@@ -101,7 +119,9 @@ public class AuszahlungController {
         );
     }
 
-    // Delete
+    // =====================================================
+    // Auszahlung löschen
+    // =====================================================
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable UUID id

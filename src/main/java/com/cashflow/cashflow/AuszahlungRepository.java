@@ -11,12 +11,17 @@ import java.util.UUID;
 
 public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
 
-    //  ZENTRALE FILTER-METHODE
+    // =========================================================
+    // ZENTRALE FILTER-METHODE
     // Alle Parameter optional → alle Kombinationen möglich
+    // Zusätzlich: nur valide Auszahlungen (keine leeren Karten)
+    // =========================================================
     @Query("""
         SELECT a
         FROM Auszahlung a
-        WHERE (:name IS NULL OR LOWER(a.name) LIKE LOWER(CONCAT('%', :name, '%')))
+        WHERE a.name IS NOT NULL
+          AND a.betrag IS NOT NULL
+          AND (:name IS NULL OR LOWER(a.name) LIKE LOWER(CONCAT('%', :name, '%')))
           AND (:datum IS NULL OR a.datum = :datum)
           AND (:kategorie IS NULL OR a.verwendungszweck = :kategorie)
         ORDER BY a.datum DESC
@@ -27,7 +32,9 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
             @Param("kategorie") Auszahlung.Verwendungszweck kategorie
     );
 
-    //  Summe für einen bestimmten Tag
+    // =========================================================
+    // Summe für einen bestimmten Tag
+    // =========================================================
     @Query("""
         SELECT COALESCE(SUM(a.betrag), 0)
         FROM Auszahlung a
@@ -37,7 +44,9 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
             @Param("datum") LocalDate datum
     );
 
-    //  Summe für einen Monat (Start inkl., Ende exkl.)
+    // =========================================================
+    // Summe für einen Monat (Start inkl., Ende exkl.)
+    // =========================================================
     @Query("""
         SELECT COALESCE(SUM(a.betrag), 0)
         FROM Auszahlung a
@@ -48,7 +57,9 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
             @Param("ende") LocalDate ende
     );
 
-    //  Gruppierte Summen nach Kategorie (für Charts)
+    // =========================================================
+    // Gruppierte Summen nach Kategorie (für Charts)
+    // =========================================================
     @Query("""
         SELECT a.verwendungszweck, COALESCE(SUM(a.betrag), 0)
         FROM Auszahlung a

@@ -1,6 +1,5 @@
 package com.cashflow.cashflow;
 
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,35 +11,11 @@ import java.util.UUID;
 
 public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
 
-    List<Auszahlung> findByDatum(
-            LocalDate datum,
-            Sort sort
-    );
-
-    List<Auszahlung> findByVerwendungszweck(
-            Auszahlung.Verwendungszweck verwendungszweck,
-            Sort sort
-    );
-
-    List<Auszahlung> findByVerwendungszweckAndDatum(
-            Auszahlung.Verwendungszweck verwendungszweck,
-            LocalDate datum,
-            Sort sort
-    );
-
-    List<Auszahlung> findByNameContainingIgnoreCase(
-            String name,
-            Sort sort
-    );
-
-    List<Auszahlung> findByNameContainingIgnoreCaseAndDatum(
-            String name,
-            LocalDate datum,
-            Sort sort
-    );
-
+    //  ZENTRALE FILTER-METHODE
+    // Alle Parameter optional → alle Kombinationen möglich
     @Query("""
-        SELECT a FROM Auszahlung a
+        SELECT a
+        FROM Auszahlung a
         WHERE (:name IS NULL OR LOWER(a.name) LIKE LOWER(CONCAT('%', :name, '%')))
           AND (:datum IS NULL OR a.datum = :datum)
           AND (:kategorie IS NULL OR a.verwendungszweck = :kategorie)
@@ -52,6 +27,7 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
             @Param("kategorie") Auszahlung.Verwendungszweck kategorie
     );
 
+    //  Summe für einen bestimmten Tag
     @Query("""
         SELECT COALESCE(SUM(a.betrag), 0)
         FROM Auszahlung a
@@ -61,6 +37,7 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
             @Param("datum") LocalDate datum
     );
 
+    //  Summe für einen Monat (Start inkl., Ende exkl.)
     @Query("""
         SELECT COALESCE(SUM(a.betrag), 0)
         FROM Auszahlung a
@@ -71,6 +48,7 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
             @Param("ende") LocalDate ende
     );
 
+    //  Gruppierte Summen nach Kategorie (für Charts)
     @Query("""
         SELECT a.verwendungszweck, COALESCE(SUM(a.betrag), 0)
         FROM Auszahlung a

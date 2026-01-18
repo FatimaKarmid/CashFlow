@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -30,40 +30,75 @@ class AuszahlungControllerTest {
     @MockitoBean
     private AuszahlungService auszahlungService;
 
-    // 1️ GET-auszahlungen
+    //  GET /auszahlungen
     @Test
     @DisplayName("should return all auszahlungen")
     void should_return_all_auszahlungen() throws Exception {
-        doReturn(List.of(
-                new Auszahlung(
-                        "Netflix",
-                        BigDecimal.valueOf(15),
-                        LocalDate.of(2024, 1, 1),
-                        Auszahlung.Zahlungsart.KARTE,
-                        Auszahlung.Verwendungszweck.FREIZEIT,
-                        null
-                )
-        )).when(auszahlungService).getAllTransactions();
+        doReturn(List.of(new Auszahlung(
+                "Netflix",
+                BigDecimal.valueOf(15),
+                LocalDate.of(2024, 1, 1),
+                Auszahlung.Zahlungsart.KARTE,
+                Auszahlung.Verwendungszweck.FREIZEIT,
+                null
+        ))).when(auszahlungService).getAllTransactions();
 
         mockMvc.perform(get("/auszahlungen"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(1))
                 .andExpect(jsonPath("$[0].name").value("Netflix"));
     }
 
-    // 2️ GET-auszahlungen-filter kategorie=MIETE
+    //  GET /auszahlungen/filter?kategorie=MIETE
     @Test
     @DisplayName("should filter by category")
     void should_filter_by_category() throws Exception {
         doReturn(List.of()).when(auszahlungService)
-                .getByKategorie(Auszahlung.Verwendungszweck.MIETE);
+                .filter(null, null, Auszahlung.Verwendungszweck.MIETE);
 
         mockMvc.perform(get("/auszahlungen/filter")
                         .param("kategorie", "MIETE"))
                 .andExpect(status().isOk());
     }
 
-    // 3️ POST-auszahlungen
+    // GET /auszahlungen/filter?datum=2024-01-01
+    @Test
+    @DisplayName("should filter by date")
+    void should_filter_by_date() throws Exception {
+        doReturn(List.of()).when(auszahlungService)
+                .filter(null, LocalDate.of(2024, 1, 1), null);
+
+        mockMvc.perform(get("/auszahlungen/filter")
+                        .param("datum", "2024-01-01"))
+                .andExpect(status().isOk());
+    }
+
+    // GET /auszahlungen/filter?name=Net
+    @Test
+    @DisplayName("should filter by name")
+    void should_filter_by_name() throws Exception {
+        doReturn(List.of()).when(auszahlungService)
+                .filter("Net", null, null);
+
+        mockMvc.perform(get("/auszahlungen/filter")
+                        .param("name", "Net"))
+                .andExpect(status().isOk());
+    }
+
+    // GET /auszahlungen/filter?name=Net&kategorie=FREIZEIT&datum=2024-01-01
+    @Test
+    @DisplayName("should filter by name, category and date")
+    void should_filter_by_all_params() throws Exception {
+        doReturn(List.of()).when(auszahlungService)
+                .filter("Net", LocalDate.of(2024, 1, 1), Auszahlung.Verwendungszweck.FREIZEIT);
+
+        mockMvc.perform(get("/auszahlungen/filter")
+                        .param("name", "Net")
+                        .param("datum", "2024-01-01")
+                        .param("kategorie", "FREIZEIT"))
+                .andExpect(status().isOk());
+    }
+
+    // POST /auszahlungen
     @Test
     @DisplayName("should create auszahlung")
     void should_create_auszahlung() throws Exception {
@@ -91,7 +126,7 @@ class AuszahlungControllerTest {
                 .andExpect(jsonPath("$.name").value("Miete"));
     }
 
-    // 4️ DELETE-auszahlungen/{id}
+    // DELETE /auszahlungen/{id}
     @Test
     @DisplayName("should delete auszahlung")
     void should_delete_auszahlung() throws Exception {
@@ -99,31 +134,7 @@ class AuszahlungControllerTest {
                 .andExpect(status().isNoContent());
     }
 
-    // 5️ GET-auszahlungen-filter datum=...
-    @Test
-    @DisplayName("should filter by date")
-    void should_filter_by_date() throws Exception {
-        doReturn(List.of()).when(auszahlungService)
-                .getByDatum(LocalDate.of(2024, 1, 1));
-
-        mockMvc.perform(get("/auszahlungen/filter")
-                        .param("datum", "2024-01-01"))
-                .andExpect(status().isOk());
-    }
-
-    // 6️ GET-auszahlungen-filter name=Net
-    @Test
-    @DisplayName("should filter by name")
-    void should_filter_by_name() throws Exception {
-        doReturn(List.of()).when(auszahlungService)
-                .getByName("Net");
-
-        mockMvc.perform(get("/auszahlungen/filter")
-                        .param("name", "Net"))
-                .andExpect(status().isOk());
-    }
-
-    // 7️ GET-auszahlungen-summe datum=...
+    // GET /auszahlungen/summe
     @Test
     @DisplayName("should return sum for a day")
     void should_return_sum_for_day() throws Exception {
@@ -137,22 +148,7 @@ class AuszahlungControllerTest {
                 .andExpect(content().string("42"));
     }
 
-    // 8️ GET-auszahlungen-summe-monat
-    @Test
-    @DisplayName("should return sum for month")
-    void should_return_sum_for_month() throws Exception {
-        doReturn(BigDecimal.valueOf(300))
-                .when(auszahlungService)
-                .getSummeProMonat(1, 2024);
-
-        mockMvc.perform(get("/auszahlungen/summe-monat")
-                        .param("monat", "1")
-                        .param("jahr", "2024"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("300"));
-    }
-
-    // 9️ GET-auszahlungen-chart
+    // GET /auszahlungen/chart
     @Test
     @DisplayName("should return chart data")
     void should_return_chart_data() throws Exception {

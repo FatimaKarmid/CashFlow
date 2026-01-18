@@ -23,7 +23,7 @@ public class AuszahlungService {
         );
     }
 
-    //  ROBUSTER FILTER (Name, Datum, Kategorie)
+    //  ROBUSTER FILTER (PostgreSQL-sicher)
     public List<Auszahlung> filter(
             String name,
             LocalDate datum,
@@ -33,14 +33,18 @@ public class AuszahlungService {
                 ? null
                 : name.trim();
 
-        LocalDate datumPlusOne = (datum != null)
-                ? datum.plusDays(1)
-                : null;
+        //  WICHTIG: KEIN NULL-Datum an die Query geben
+        if (datum == null) {
+            return auszahlungRepository.filterOhneDatum(
+                    safeName,
+                    kategorie
+            );
+        }
 
-        return auszahlungRepository.filter(
+        return auszahlungRepository.filterMitDatum(
                 safeName,
                 datum,
-                datumPlusOne,
+                datum.plusDays(1),
                 kategorie
         );
     }
@@ -50,7 +54,7 @@ public class AuszahlungService {
         return auszahlungRepository.save(auszahlung);
     }
 
-    // ⚠ Update: überschreibt das Objekt vollständig (fachlich fragwürdig, aber korrekt)
+    //  Update überschreibt das Objekt vollständig (funktional, aber fachlich heikel)
     public Auszahlung updateTransaction(UUID id, Auszahlung updated) {
         return auszahlungRepository.findById(id)
                 .map(existing -> {

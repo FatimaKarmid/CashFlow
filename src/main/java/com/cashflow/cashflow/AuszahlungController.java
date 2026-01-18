@@ -36,7 +36,7 @@ public class AuszahlungController {
         );
     }
 
-    // Filter für Auszahlungen
+    //  Filter für Auszahlungen
     @GetMapping("/filter")
     public ResponseEntity<List<Auszahlung>> filter(
             @RequestParam(required = false) String name,
@@ -45,17 +45,17 @@ public class AuszahlungController {
             LocalDate datum,
             @RequestParam(required = false) Auszahlung.Verwendungszweck kategorie
     ) {
-        String safeName = (name == null || name.isBlank()) ? null : name.trim();
-
         return ResponseEntity.ok(
-                auszahlungService.filter(safeName, datum, kategorie)
+                auszahlungService.filter(name, datum, kategorie)
         );
     }
 
-    // Summe der Auszahlungen für ein bestimmtes Datum
+    //  Summe der Auszahlungen für ein bestimmtes Datum
     @GetMapping("/summe")
     public ResponseEntity<BigDecimal> summeTag(
-            @RequestParam LocalDate datum
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate datum
     ) {
         return ResponseEntity.ok(
                 auszahlungService.getSummeAmTag(datum)

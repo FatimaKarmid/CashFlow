@@ -11,26 +11,37 @@ import java.util.UUID;
 
 public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
 
-    //  ROBUSTER FILTER (Name, Datum, Kategorie)
+    //  FILTER OHNE DATUM (Postgres-sicher)
     @Query("""
         SELECT a
         FROM Auszahlung a
         WHERE (:name IS NULL OR LOWER(a.name) LIKE LOWER(CONCAT('%', :name, '%')))
-          AND (
-                :datum IS NULL
-                OR (a.datum >= :datum AND a.datum < :datumPlusOne)
-              )
           AND (:kategorie IS NULL OR a.verwendungszweck = :kategorie)
         ORDER BY a.datum DESC
     """)
-    List<Auszahlung> filter(
+    List<Auszahlung> filterOhneDatum(
             @Param("name") String name,
-            @Param("datum") LocalDate datum,
-            @Param("datumPlusOne") LocalDate datumPlusOne,
             @Param("kategorie") Auszahlung.Verwendungszweck kategorie
     );
 
-    //  Tages-Summe (hier ist = OK, weil Aggregat)
+    //  FILTER MIT DATUM (Bereich, typklar)
+    @Query("""
+        SELECT a
+        FROM Auszahlung a
+        WHERE (:name IS NULL OR LOWER(a.name) LIKE LOWER(CONCAT('%', :name, '%')))
+          AND a.datum >= :start
+          AND a.datum < :ende
+          AND (:kategorie IS NULL OR a.verwendungszweck = :kategorie)
+        ORDER BY a.datum DESC
+    """)
+    List<Auszahlung> filterMitDatum(
+            @Param("name") String name,
+            @Param("start") LocalDate start,
+            @Param("ende") LocalDate ende,
+            @Param("kategorie") Auszahlung.Verwendungszweck kategorie
+    );
+
+    //  Tages-Summe
     @Query("""
         SELECT COALESCE(SUM(a.betrag), 0)
         FROM Auszahlung a
@@ -51,7 +62,7 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
             @Param("ende") LocalDate ende
     );
 
-    // Diagramm: Summe pro Kategorie
+    //  Diagramm: Summe pro Kategorie
     @Query("""
         SELECT a.verwendungszweck, COALESCE(SUM(a.betrag), 0)
         FROM Auszahlung a

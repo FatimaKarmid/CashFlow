@@ -1,43 +1,46 @@
 package com.cashflow.cashflow;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
+
 @Entity
 @Table(name = "auszahlung")
 public class Auszahlung {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @NotNull
     @Positive
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal betrag;
 
     @NotNull
-    @Column(nullable = false, columnDefinition = "DATE")
+    @Column(nullable = false)
     private LocalDate datum;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private Zahlungsart zahlungsart;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private Verwendungszweck verwendungszweck;
 
     @Column(length = 255)
     private String notiz;
 
-    @Column(nullable = false)
+    @NotBlank
+    @Column(nullable = false, length = 100)
     private String name;
 
     public enum Zahlungsart {
@@ -58,7 +61,8 @@ public class Auszahlung {
         SONSTIGES
     }
 
-    public Auszahlung() {
+    protected Auszahlung() {
+        // JPA only
     }
 
     public Auszahlung(
@@ -79,10 +83,6 @@ public class Auszahlung {
 
     public UUID getId() {
         return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
     }
 
     public BigDecimal getBetrag() {
@@ -131,18 +131,5 @@ public class Auszahlung {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return "Auszahlung{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", betrag=" + betrag +
-                ", datum=" + datum +
-                ", zahlungsart=" + zahlungsart +
-                ", verwendungszweck=" + verwendungszweck +
-                ", notiz='" + notiz + '\'' +
-                '}';
     }
 }

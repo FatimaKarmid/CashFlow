@@ -18,24 +18,31 @@ public class AuszahlungService {
 
     // Alle Auszahlungen, sortiert nach Datum (neueste zuerst)
     public List<Auszahlung> getAllTransactions() {
-        return auszahlungRepository.findAll(Sort.by(Sort.Direction.DESC, "datum"));
+        return auszahlungRepository.findAll(
+                Sort.by(Sort.Direction.DESC, "datum")
+        );
     }
 
-    // Filter für Auszahlungen (nach Name, Datum und Kategorie)
+    //  ROBUSTER FILTER (Name, Datum, Kategorie)
     public List<Auszahlung> filter(
             String name,
             LocalDate datum,
             Auszahlung.Verwendungszweck kategorie
     ) {
-        // Bereinigung des Namens-Parameters
-        String safeName = (name == null || name.isBlank()) ? null : name.trim();
+        String safeName = (name == null || name.isBlank())
+                ? null
+                : name.trim();
 
-        // Falls das Datum null ist, behandeln wir es als optional
-        if (datum == null) {
-            return auszahlungRepository.filter(safeName, null, kategorie);
-        } else {
-            return auszahlungRepository.filter(safeName, datum, kategorie);
-        }
+        LocalDate datumPlusOne = (datum != null)
+                ? datum.plusDays(1)
+                : null;
+
+        return auszahlungRepository.filter(
+                safeName,
+                datum,
+                datumPlusOne,
+                kategorie
+        );
     }
 
     // Neue Auszahlung hinzufügen
@@ -43,17 +50,18 @@ public class AuszahlungService {
         return auszahlungRepository.save(auszahlung);
     }
 
-    // Eine bestehende Auszahlung aktualisieren
+    // ⚠ Update: überschreibt das Objekt vollständig (fachlich fragwürdig, aber korrekt)
     public Auszahlung updateTransaction(UUID id, Auszahlung updated) {
-        // Wenn die Auszahlung mit der gegebenen ID existiert, wird sie aktualisiert
         return auszahlungRepository.findById(id)
                 .map(existing -> {
-                    updated.setId(id);  // Setzt die ID für das aktualisierte Objekt
-                    return auszahlungRepository.save(updated);  // Speichert die Änderung
+                    updated.setId(id);
+                    return auszahlungRepository.save(updated);
                 })
-                .orElseThrow(() -> new NoSuchElementException(
-                        "Auszahlung mit ID " + id + " nicht gefunden"
-                ));
+                .orElseThrow(() ->
+                        new NoSuchElementException(
+                                "Auszahlung mit ID " + id + " nicht gefunden"
+                        )
+                );
     }
 
     // Eine Auszahlung löschen
@@ -68,21 +76,21 @@ public class AuszahlungService {
 
     // Summe der Auszahlungen für einen bestimmten Monat und Jahr
     public BigDecimal getSummeProMonat(int monat, int jahr) {
-        LocalDate start = LocalDate.of(jahr, monat, 1);  // Erster Tag des Monats
-        LocalDate ende = start.plusMonths(1);  // Erster Tag des nächsten Monats
+        LocalDate start = LocalDate.of(jahr, monat, 1);
+        LocalDate ende = start.plusMonths(1);
         return auszahlungRepository.summeProMonat(start, ende);
     }
 
     // Summe der Ausgaben nach Kategorie für einen bestimmten Monat und Jahr
     public Map<String, BigDecimal> summeNachKategorie(int monat, int jahr) {
-        LocalDate start = LocalDate.of(jahr, monat, 1);  // Erster Tag des Monats
-        LocalDate ende = start.plusMonths(1);  // Erster Tag des nächsten Monats
+        LocalDate start = LocalDate.of(jahr, monat, 1);
+        LocalDate ende = start.plusMonths(1);
 
-        Map<String, BigDecimal> result = new LinkedHashMap<>();  // LinkedHashMap für sortierte Einträge
+        Map<String, BigDecimal> result = new LinkedHashMap<>();
         for (Object[] row : auszahlungRepository.summeNachKategorie(start, ende)) {
             result.put(
-                    row[0].toString(),  // Verwendungszweck (Kategorie) als Key
-                    (BigDecimal) row[1]  // Summe der Beträge als Value
+                    row[0].toString(),
+                    (BigDecimal) row[1]
             );
         }
         return result;

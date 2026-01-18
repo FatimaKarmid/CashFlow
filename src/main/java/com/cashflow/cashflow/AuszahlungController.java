@@ -39,19 +39,26 @@ public class AuszahlungController {
     @GetMapping("/filter")
     public ResponseEntity<List<Auszahlung>> filter(
             @RequestParam(required = false) String name,
-            @RequestParam(required = false) LocalDate datum,
+            @RequestParam(required = false) String datum,  // Datum als String empfangen
             @RequestParam(required = false) Auszahlung.Verwendungszweck kategorie
     ) {
         // Bereinigung des Namens-Parameters
         String safeName = (name == null || name.isBlank()) ? null : name.trim();
 
-        // Falls Datum nicht übergeben wurde, als null behandeln
-        if (datum == null || datum.toString().isBlank()) {
-            datum = null;
+        // Datum verarbeiten, falls es nicht null ist
+        LocalDate parsedDatum = null;
+        if (datum != null && !datum.isBlank()) {
+            try {
+                parsedDatum = LocalDate.parse(datum);  // Umwandlung von String zu LocalDate
+            } catch (Exception e) {
+                // Falls das Datum nicht im richtigen Format vorliegt, setzen wir es auf null
+                parsedDatum = null;
+            }
         }
 
+        // Aufruf der Service-Methode mit dem korrekten Datum
         return ResponseEntity.ok(
-                auszahlungService.filter(safeName, datum, kategorie)
+                auszahlungService.filter(safeName, parsedDatum, kategorie)
         );
     }
 

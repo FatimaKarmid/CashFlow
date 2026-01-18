@@ -11,6 +11,7 @@ import java.util.UUID;
 
 public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
 
+    // Filterabfrage für Auszahlungen (nach Name, Datum und Kategorie)
     @Query("""
         SELECT a
         FROM Auszahlung a
@@ -27,6 +28,7 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
             @Param("kategorie") Auszahlung.Verwendungszweck kategorie
     );
 
+    // Summe der Auszahlungen für ein bestimmtes Datum
     @Query("""
         SELECT COALESCE(SUM(a.betrag), 0)
         FROM Auszahlung a
@@ -36,6 +38,7 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
             @Param("datum") LocalDate datum
     );
 
+    // Summe der Auszahlungen für einen bestimmten Monat und Jahr (zwischen Start und Ende des Monats)
     @Query("""
         SELECT COALESCE(SUM(a.betrag), 0)
         FROM Auszahlung a
@@ -46,7 +49,7 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
             @Param("ende") LocalDate ende
     );
 
-
+    // Summe der Ausgaben pro Kategorie für einen bestimmten Monat und Jahr
     @Query("""
         SELECT a.verwendungszweck, COALESCE(SUM(a.betrag), 0)
         FROM Auszahlung a

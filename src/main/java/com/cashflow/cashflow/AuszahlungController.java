@@ -27,13 +27,16 @@ public class AuszahlungController {
         this.auszahlungService = auszahlungService;
     }
 
-    //  Alle Auszahlungen (ohne Filter)
+    // Alle Auszahlungen (ohne Filter)
     @GetMapping
     public ResponseEntity<List<Auszahlung>> getAll() {
-        return ResponseEntity.ok(auszahlungService.getAllTransactions());
+        return ResponseEntity.ok(
+                auszahlungService.getAllTransactions()
+        );
     }
 
-    //  EIN Filter-Endpunkt für ALLE Kombinationen
+    // EIN Filter-Endpunkt für ALLE Kombinationen
+    // Name + Kategorie + Datum (beliebig kombinierbar)
     @GetMapping("/filter")
     public ResponseEntity<List<Auszahlung>> filter(
             @RequestParam(required = false) String name,
@@ -45,39 +48,49 @@ public class AuszahlungController {
         );
     }
 
-    //  Summe pro Tag
+    // Summe pro Tag
     @GetMapping("/summe")
-    public ResponseEntity<BigDecimal> summeTag(@RequestParam LocalDate datum) {
-        return ResponseEntity.ok(auszahlungService.getSummeAmTag(datum));
+    public ResponseEntity<BigDecimal> summeTag(
+            @RequestParam LocalDate datum
+    ) {
+        return ResponseEntity.ok(
+                auszahlungService.getSummeAmTag(datum)
+        );
     }
 
-    //  Summe pro Monat
+    // Summe pro Monat
     @GetMapping("/summe-monat")
     public ResponseEntity<BigDecimal> summeMonat(
             @RequestParam int monat,
             @RequestParam int jahr
     ) {
-        return ResponseEntity.ok(auszahlungService.getSummeProMonat(monat, jahr));
+        return ResponseEntity.ok(
+                auszahlungService.getSummeProMonat(monat, jahr)
+        );
     }
 
-    //  Chart-Daten
+    // Chart-Daten (Summe je Kategorie)
     @GetMapping("/chart")
     public ResponseEntity<Map<String, BigDecimal>> chart(
             @RequestParam int monat,
             @RequestParam int jahr
     ) {
-        return ResponseEntity.ok(auszahlungService.summeNachKategorie(monat, jahr));
+        return ResponseEntity.ok(
+                auszahlungService.summeNachKategorie(monat, jahr)
+        );
     }
 
-    //  Neue Auszahlung
+    // Neue Auszahlung
     @PostMapping
-    public ResponseEntity<Auszahlung> add(@Valid @RequestBody Auszahlung auszahlung) {
+    public ResponseEntity<Auszahlung> add(
+            @Valid @RequestBody Auszahlung auszahlung
+    ) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(auszahlungService.addTransaction(auszahlung));
     }
 
-    //  Update
+    // Update bestehender Auszahlung
     @PutMapping("/{id}")
     public ResponseEntity<Auszahlung> update(
             @PathVariable UUID id,
@@ -88,9 +101,11 @@ public class AuszahlungController {
         );
     }
 
-    //  Delete
+    // Delete
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+    public ResponseEntity<Void> delete(
+            @PathVariable UUID id
+    ) {
         auszahlungService.deleteTransaction(id);
         return ResponseEntity.noContent().build();
     }

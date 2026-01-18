@@ -16,85 +16,65 @@ public class AuszahlungService {
         this.auszahlungRepository = auszahlungRepository;
     }
 
-    // =====================================================
-    // Alle Auszahlungen (ohne Filter)
-    // =====================================================
+    // Alle Auszahlungen (sortiert nach Datum)
     public List<Auszahlung> getAllTransactions() {
         return auszahlungRepository.findAll(
                 Sort.by(Sort.Direction.DESC, "datum")
         );
     }
 
-    // =====================================================
-    // ZENTRALE FILTER-METHODE
-    // Alle Kombinationen von Name, Datum und Kategorie
-    // =====================================================
+    // Filter für Auszahlungen
     public List<Auszahlung> filter(
             String name,
             LocalDate datum,
             Auszahlung.Verwendungszweck kategorie
     ) {
         // Leere oder nur aus Leerzeichen bestehende Namen bereinigen
-        String safeName = (name == null || name.isBlank())
-                ? null
-                : name.trim();
+        String safeName = (name == null || name.isBlank()) ? null : name.trim();
 
-        return auszahlungRepository.filter(
-                safeName,
-                datum,
-                kategorie
-        );
+        // Falls das Datum null ist, behandeln wir es als optional (keine Filterung auf das Datum)
+        if (datum == null) {
+            return auszahlungRepository.filter(safeName, null, kategorie);
+        } else {
+            return auszahlungRepository.filter(safeName, datum, kategorie);
+        }
     }
 
-    // =====================================================
-    // Neue Auszahlung anlegen
-    // =====================================================
+    // Neue Auszahlung hinzufügen
     public Auszahlung addTransaction(Auszahlung auszahlung) {
         return auszahlungRepository.save(auszahlung);
     }
 
-    // =====================================================
-    // Bestehende Auszahlung aktualisieren
-    // =====================================================
+    // Eine bestehende Auszahlung aktualisieren
     public Auszahlung updateTransaction(UUID id, Auszahlung updated) {
         return auszahlungRepository.findById(id)
                 .map(existing -> {
                     updated.setId(id);
                     return auszahlungRepository.save(updated);
                 })
-                .orElseThrow(() ->
-                        new NoSuchElementException(
-                                "Auszahlung mit ID " + id + " nicht gefunden"
-                        )
-                );
+                .orElseThrow(() -> new NoSuchElementException(
+                        "Auszahlung mit ID " + id + " nicht gefunden"
+                ));
     }
 
-    // =====================================================
-    // Auszahlung löschen
-    // =====================================================
+    // Eine Auszahlung löschen
     public void deleteTransaction(UUID id) {
         auszahlungRepository.deleteById(id);
     }
 
-    // =====================================================
-    // Summe für einen bestimmten Tag
-    // =====================================================
+    // Summe der Auszahlungen für einen bestimmten Tag
     public BigDecimal getSummeAmTag(LocalDate datum) {
         return auszahlungRepository.summeAmTag(datum);
     }
 
-    // =====================================================
-    // Summe für einen bestimmten Monat
-    // =====================================================
+    // Summe der Auszahlungen für einen bestimmten Monat und Jahr
     public BigDecimal getSummeProMonat(int monat, int jahr) {
         LocalDate start = LocalDate.of(jahr, monat, 1);
         LocalDate ende = start.plusMonths(1);
         return auszahlungRepository.summeProMonat(start, ende);
     }
 
-    // =====================================================
-    // Gruppierte Summen nach Kategorie (für Charts)
-    // =====================================================
+    // Ausgaben nach Kategorie für einen bestimmten Monat und Jahr
     public Map<String, BigDecimal> summeNachKategorie(int monat, int jahr) {
         LocalDate start = LocalDate.of(jahr, monat, 1);
         LocalDate ende = start.plusMonths(1);

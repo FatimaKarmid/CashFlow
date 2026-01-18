@@ -11,11 +11,6 @@ import java.util.UUID;
 
 public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
 
-    // =========================================================
-    // ZENTRALE FILTER-METHODE
-    // Alle Parameter optional → alle Kombinationen möglich
-    // Zusätzlich: nur valide Auszahlungen (keine leeren Karten)
-    // =========================================================
     @Query("""
         SELECT a
         FROM Auszahlung a
@@ -32,9 +27,6 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
             @Param("kategorie") Auszahlung.Verwendungszweck kategorie
     );
 
-    // =========================================================
-    // Summe für einen bestimmten Tag
-    // =========================================================
     @Query("""
         SELECT COALESCE(SUM(a.betrag), 0)
         FROM Auszahlung a
@@ -44,9 +36,6 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
             @Param("datum") LocalDate datum
     );
 
-    // =========================================================
-    // Summe für einen Monat (Start inkl., Ende exkl.)
-    // =========================================================
     @Query("""
         SELECT COALESCE(SUM(a.betrag), 0)
         FROM Auszahlung a
@@ -57,9 +46,7 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
             @Param("ende") LocalDate ende
     );
 
-    // =========================================================
-    // Gruppierte Summen nach Kategorie (für Charts)
-    // =========================================================
+
     @Query("""
         SELECT a.verwendungszweck, COALESCE(SUM(a.betrag), 0)
         FROM Auszahlung a

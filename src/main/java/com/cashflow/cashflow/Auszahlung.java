@@ -45,7 +45,7 @@ public class Auszahlung {
         KARTE,
         UEBERWEISUNG,
         LASTSCHRIFT,
-        UBERWEISUNG, SONSTIGES
+        SONSTIGES
     }
 
     public enum Verwendungszweck {

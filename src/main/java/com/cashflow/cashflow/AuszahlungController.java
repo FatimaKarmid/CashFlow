@@ -28,6 +28,7 @@ public class AuszahlungController {
         this.auszahlungService = auszahlungService;
     }
 
+
     // Alle Auszahlungen (ohne Filter)
     @GetMapping
     public ResponseEntity<List<Auszahlung>> getAll() {
@@ -36,21 +37,25 @@ public class AuszahlungController {
         );
     }
 
-    //  Filter für Auszahlungen
+    //  ROBUSTER FILTER (Name, Datum, Kategorie)
     @GetMapping("/filter")
     public ResponseEntity<List<Auszahlung>> filter(
             @RequestParam(required = false) String name,
+
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate datum,
-            @RequestParam(required = false) Auszahlung.Verwendungszweck kategorie
+
+            @RequestParam(required = false)
+            Auszahlung.Verwendungszweck kategorie
     ) {
         return ResponseEntity.ok(
                 auszahlungService.filter(name, datum, kategorie)
         );
     }
 
-    //  Summe der Auszahlungen für ein bestimmtes Datum
+
+    // Summe der Auszahlungen für ein bestimmtes Datum
     @GetMapping("/summe")
     public ResponseEntity<BigDecimal> summeTag(
             @RequestParam
@@ -73,7 +78,7 @@ public class AuszahlungController {
         );
     }
 
-    // Diagramm mit Ausgaben pro Kategorie für einen Monat und Jahr
+    // Diagramm: Ausgaben pro Kategorie
     @GetMapping("/chart")
     public ResponseEntity<Map<String, BigDecimal>> chart(
             @RequestParam int monat,
@@ -83,6 +88,7 @@ public class AuszahlungController {
                 auszahlungService.summeNachKategorie(monat, jahr)
         );
     }
+
 
     // Neue Auszahlung hinzufügen
     @PostMapping
@@ -94,7 +100,7 @@ public class AuszahlungController {
                 .body(auszahlungService.addTransaction(auszahlung));
     }
 
-    // Eine bestehende Auszahlung aktualisieren
+    // Auszahlung aktualisieren (vollständiger Replace)
     @PutMapping("/{id}")
     public ResponseEntity<Auszahlung> update(
             @PathVariable UUID id,
@@ -105,7 +111,7 @@ public class AuszahlungController {
         );
     }
 
-    // Eine Auszahlung löschen
+    // Auszahlung löschen
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable UUID id

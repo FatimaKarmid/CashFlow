@@ -5,7 +5,11 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Service
 public class AuszahlungService {
@@ -16,6 +20,7 @@ public class AuszahlungService {
         this.auszahlungRepository = auszahlungRepository;
     }
 
+
     // Alle Auszahlungen, sortiert nach Datum (neueste zuerst)
     public List<Auszahlung> getAllTransactions() {
         return auszahlungRepository.findAll(
@@ -23,7 +28,7 @@ public class AuszahlungService {
         );
     }
 
-    //  ROBUSTER FILTER (PostgreSQL-sicher)
+    // ROBUSTER FILTER (PostgreSQL-sicher)
     public List<Auszahlung> filter(
             String name,
             LocalDate datum,
@@ -33,7 +38,6 @@ public class AuszahlungService {
                 ? null
                 : name.trim();
 
-        //  WICHTIG: KEIN NULL-Datum an die Query geben
         if (datum == null) {
             return auszahlungRepository.filterOhneDatum(
                     safeName,
@@ -41,25 +45,33 @@ public class AuszahlungService {
             );
         }
 
+        LocalDate ende = datum.plusDays(1);
+
         return auszahlungRepository.filterMitDatum(
                 safeName,
                 datum,
-                datum.plusDays(1),
+                ende,
                 kategorie
         );
     }
+
 
     // Neue Auszahlung hinzufügen
     public Auszahlung addTransaction(Auszahlung auszahlung) {
         return auszahlungRepository.save(auszahlung);
     }
 
-    //  Update überschreibt das Objekt vollständig (funktional, aber fachlich heikel)
+    //  KORREKTES UPDATE (keine ID-Manipulation)
     public Auszahlung updateTransaction(UUID id, Auszahlung updated) {
         return auszahlungRepository.findById(id)
                 .map(existing -> {
-                    updated.setId(id);
-                    return auszahlungRepository.save(updated);
+                    existing.setName(updated.getName());
+                    existing.setBetrag(updated.getBetrag());
+                    existing.setDatum(updated.getDatum());
+                    existing.setZahlungsart(updated.getZahlungsart());
+                    existing.setVerwendungszweck(updated.getVerwendungszweck());
+                    existing.setNotiz(updated.getNotiz());
+                    return auszahlungRepository.save(existing);
                 })
                 .orElseThrow(() ->
                         new NoSuchElementException(
@@ -91,6 +103,7 @@ public class AuszahlungService {
         LocalDate ende = start.plusMonths(1);
 
         Map<String, BigDecimal> result = new LinkedHashMap<>();
+
         for (Object[] row : auszahlungRepository.summeNachKategorie(start, ende)) {
             result.put(
                     row[0].toString(),

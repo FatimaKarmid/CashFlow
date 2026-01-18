@@ -11,7 +11,8 @@ import java.util.UUID;
 
 public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
 
-    //  FILTER OHNE DATUM (Postgres-sicher)
+
+    //  FILTER OHNE DATUM (PostgreSQL-sicher)
     @Query("""
         SELECT a
         FROM Auszahlung a
@@ -24,7 +25,7 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
             @Param("kategorie") Auszahlung.Verwendungszweck kategorie
     );
 
-    //  FILTER MIT DATUM (Bereich, typklar)
+    //  FILTER MIT DATUM (halb-offenes Intervall: [start, ende))
     @Query("""
         SELECT a
         FROM Auszahlung a
@@ -41,7 +42,8 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
             @Param("kategorie") Auszahlung.Verwendungszweck kategorie
     );
 
-    //  Tages-Summe
+
+    //  Tages-Summe (DATE = DATE → sicher)
     @Query("""
         SELECT COALESCE(SUM(a.betrag), 0)
         FROM Auszahlung a
@@ -51,22 +53,25 @@ public interface AuszahlungRepository extends JpaRepository<Auszahlung, UUID> {
             @Param("datum") LocalDate datum
     );
 
-    //  Monats-Summe
+    //  Monats-Summe (Index-freundlich)
     @Query("""
         SELECT COALESCE(SUM(a.betrag), 0)
         FROM Auszahlung a
-        WHERE a.datum >= :start AND a.datum < :ende
+        WHERE a.datum >= :start
+          AND a.datum < :ende
     """)
     BigDecimal summeProMonat(
             @Param("start") LocalDate start,
             @Param("ende") LocalDate ende
     );
 
+
     //  Diagramm: Summe pro Kategorie
     @Query("""
         SELECT a.verwendungszweck, COALESCE(SUM(a.betrag), 0)
         FROM Auszahlung a
-        WHERE a.datum >= :start AND a.datum < :ende
+        WHERE a.datum >= :start
+          AND a.datum < :ende
         GROUP BY a.verwendungszweck
         ORDER BY a.verwendungszweck
     """)

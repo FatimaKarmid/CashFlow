@@ -10,12 +10,19 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@Table(name = "auszahlung")
+@Table(
+        name = "auszahlung",
+        indexes = {
+                @Index(name = "idx_auszahlung_datum", columnList = "datum"),
+                @Index(name = "idx_auszahlung_kategorie", columnList = "verwendungszweck")
+        }
+)
 public class Auszahlung {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
 
     @NotNull
     @Positive
@@ -43,6 +50,7 @@ public class Auszahlung {
     @Column(nullable = false, length = 100)
     private String name;
 
+
     public enum Zahlungsart {
         BAR,
         KARTE,
@@ -60,6 +68,7 @@ public class Auszahlung {
         GESUNDHEIT,
         SONSTIGES
     }
+
 
     protected Auszahlung() {
         // JPA only
@@ -80,6 +89,7 @@ public class Auszahlung {
         this.verwendungszweck = verwendungszweck;
         this.notiz = notiz;
     }
+
 
     public UUID getId() {
         return id;

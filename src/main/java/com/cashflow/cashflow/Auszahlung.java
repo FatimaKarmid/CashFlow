@@ -21,7 +21,7 @@ public class Auszahlung {
     private BigDecimal betrag;
 
     @NotNull
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "DATE")
     private LocalDate datum;
 
     @NotNull
